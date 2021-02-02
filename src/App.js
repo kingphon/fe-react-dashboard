@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Switch, Route } from 'react-router-dom'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import Main from './components/templates/layouts/Main';
+import District from './components/pages/Location/District'
+import Province from './components/pages/Location/Province'
+import Zone from './components/pages/Location/Zone'
+
+class App extends React.Component {
+  render() {
+    return (
+      <Switch>
+        <Route exact path="/">
+          <Main>
+            <h2>Main</h2>
+          </Main>
+        </Route>
+        <Route path="/account">
+          <Main>
+            <h2>Account</h2>
+          </Main>
+        </Route>
+        <Route path="/district">
+          <Main>
+            <District />
+          </Main>
+        </Route>
+        <Route path="/province">
+          <Main>
+            <Province />
+          </Main>
+        </Route>
+        <Route path="/zone">
+          <Main>
+            <Zone />
+          </Main>
+        </Route>
+      </Switch>
+    );
+  }
 }
-
 export default App;

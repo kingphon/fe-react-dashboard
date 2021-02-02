@@ -1,0 +1,45 @@
+@import '../../../colors.scss';
+
+.root {
+    float: right;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.paginationItem {
+    border-radius: 25px !important;
+    outline: none !important;
+    border: solid $whisper_color 0.5px;
+
+    &:first-child, &:last-child {
+        width: 0;
+    }
+
+    &:hover {
+        background-color: $whisper_color !important
+    }
+
+    &:active {
+        outline: 0 !important
+    }
+
+    &::before {
+        background: none !important
+    }
+    
+    &[aria-current='true'] {
+        background: $primary_color !important;
+        color: $white_color !important
+    }
+
+    &[aria-current='true'].disabled {
+        background: $primary_color !important;
+        color: $white_color !important
+    }
+
+    &.active.disabled {
+        background-color: $whisper_color !important;
+        color: $white_color !important;
+    }
+}

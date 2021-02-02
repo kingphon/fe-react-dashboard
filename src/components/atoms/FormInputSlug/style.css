@@ -1,0 +1,21 @@
+.input-slug {
+    margin-bottom: 1em;
+}
+
+.input-slug i.slug-text {
+    word-break: break-all;
+}
+
+.input-slug div.edit-area {
+    background-color: #ccc6;
+    padding: 8px;
+}
+
+.input-slug .slug-input--display.error {
+    color: red;
+}
+
+.input-slug .slug-input--error {
+    display: block;
+    color: red;
+}

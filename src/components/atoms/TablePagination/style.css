@@ -1,0 +1,4 @@
+.ui.menu .item.disabled.active, .ui.menu .item.disabled.active:hover {
+    background-color: #607d8b85 !important;
+    color: #fff !important;
+}

@@ -1,0 +1,17 @@
+.atoms-datepicker {
+    position: relative;
+}
+
+.atoms-datepicker.fluid .react-datepicker-wrapper input {
+    padding-left: 32px !important;
+}
+
+.atoms-datepicker.fluid .react-datepicker-wrapper {
+    width: 100%;
+}
+
+.atoms-datepicker .calendar.outline.icon {
+    position: absolute;
+    top: 32px;
+    left: 16px;
+}
