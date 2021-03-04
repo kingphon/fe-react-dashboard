@@ -9,9 +9,7 @@ const Render = ({ children }) => {
       <div className="flex w-full h-full">
         <HorizontalSideBar />
         <div className="w-full">
-          <div>
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     </>
@@ -19,7 +17,7 @@ const Render = ({ children }) => {
 }
 
 const Main = ({ children }) => {
-  console.log(children)
+  // console.log(children)
 
   const renderProps = {
     children,

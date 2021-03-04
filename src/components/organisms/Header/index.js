@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import NotificationsActiveRoundedIcon from '@material-ui/icons/NotificationsActiveRounded';
 import ArrowDropDownRoundedIcon from '@material-ui/icons/ArrowDropDownRounded';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -8,7 +8,7 @@ import AddBoxRoundedIcon from '@material-ui/icons/AddBoxRounded';
 import Button from '../../atoms/Button'
 import Input from '../../atoms/Input'
 
-const Header = ({ headerName, headerLogo }) => {
+const Header = ({ headerName, createButtonLoading, headerLogo, onOpenCreate }) => {
   return (
     <>
       <div className="h-16 bg-white p-4 px-6 flex items-center justify-between">
@@ -17,7 +17,12 @@ const Header = ({ headerName, headerLogo }) => {
             <h3>{headerName}</h3>&nbsp;
                 {headerLogo}
           </div>
-          <Button endIcon={<AddBoxRoundedIcon />} color="default">
+          <Button
+            endIcon={<AddBoxRoundedIcon />}
+            color="default"
+            onClick={onOpenCreate}
+            loading={createButtonLoading}
+          >
             Thêm
           </Button>
         </div>
@@ -31,8 +36,8 @@ const Header = ({ headerName, headerLogo }) => {
                 </InputAdornment>
               ),
             }}
-            fullWidth 
-            />
+            fullWidth
+          />
         </div>
         <div className="flex items-center w-1/4 justify-around">
           <h3 className="cursor-pointer">Tài khoản</h3>

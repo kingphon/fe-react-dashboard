@@ -9,3 +9,7 @@ html,
 #root {
   height: 100% !important;
 }
+
+#root.Mui-selected {
+  background-color: "rgba(147, 197, 253, 0.8)"
+}
