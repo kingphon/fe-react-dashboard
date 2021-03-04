@@ -18,7 +18,7 @@ export const initialState = {
   // filters: {
   //   status: ALL
   // },
-  openModal: true,
+  openModal: false,
   provinceList: [
   ],
   province: {

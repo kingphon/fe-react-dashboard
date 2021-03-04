@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
+
 import Input from "../../../atoms/Input";
+import CheckBox from "../../../atoms/CheckBox";
+import { makeSlug } from "../../../../commons/utils";
 import {
   closeModal,
   doSave,
@@ -11,10 +14,12 @@ const Render = ({
   openModal,
   formLoading,
   modalFormSuccessMessage,
+  slugCheckBox,
+  onClickCheckBox,
   province: {
     provinceId,
     provinceName,
-    provinceSlugName
+    provinceSlugName,
   },
   errors: { formErrors },
   onChangeForm,
@@ -39,13 +44,18 @@ const Render = ({
       disabled={!!provinceId}
       error={formErrors.provinceName}
     />
+    <CheckBox
+      label="Customize Slug"
+      checked={slugCheckBox}
+      onClick={onClickCheckBox}
+    />
     <Input
       required
       label="Province Slug Name: "
       name="provinceSlugName"
       value={provinceSlugName}
       onChange={onChangeForm}
-      disabled={!!provinceId}
+      disabled={!slugCheckBox}
       error={formErrors.provinceSlugName}
     />
   </ModalModule>
@@ -71,11 +81,17 @@ const ProvinceModal = () => {
     shallowEqual
   );
 
+  const [slugCheckBox, setSlugCheckBox] = useState(false)
+
   const dispatch = useDispatch();
 
   const renderProps = {
     ...selector,
+    slugCheckBox,
+    onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
     onChangeForm: (_, { name, value }) =>
+      !slugCheckBox && name === "provinceName" &&
+      dispatch(setProvince({ ...selector.province, [name]: value, provinceSlugName: makeSlug(value) })) ||
       dispatch(setProvince({ ...selector.province, [name]: value })),
     onPositive: () => dispatch(doSave(selector.province)),
     onClose: () => dispatch(closeModal())
