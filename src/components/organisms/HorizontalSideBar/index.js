@@ -45,7 +45,7 @@ const HorizontalSideBar = () => {
   }
   return (
     <>
-      <div className="rounded bg-blue-300 text-white h-full w-64">
+      <div className="rounded bg-blue-300 text-white w-64 absolute h-full">
         <div className="rounded text-center p-4 border-b h-16 w-full">
           <img className="w-full h-full object-cover object-center" src="/images/logo.png" alt="logo" />
         </div>

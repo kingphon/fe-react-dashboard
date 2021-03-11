@@ -20,9 +20,10 @@ const TableRowModule = ({ name, slugName }) => (
 )
 
 const Render = ({
-  provinceList, loading,
-  // onOpenUpdate,
-  // onDelete
+  provinceList,
+  loading,
+  onOpenUpdate,
+  onDelete
 }) => (
   <TableModule
     loading={loading}
@@ -32,16 +33,9 @@ const Render = ({
       provinceList
     }
     row={TableRowModule}
-  // onDelete={onDelete}
-  // onOpenUpdate={promotionId => onOpenUpdate(promotionId)}
+    onDelete={onDelete}
+    onOpenUpdate={provinceId => onOpenUpdate(provinceId)}
   >
-    {/* <div className="p-4 mb-4 bg-white rounded">
-      <FilterStatus
-        statusValue={filter}
-        listStatus={LIST_STATUS}
-        onChangeStatus={onChangeStatus}
-      />
-    </div> */}
   </TableModule>
 )
 
@@ -49,20 +43,18 @@ export default function ProvinceTable() {
   const selector = useSelector(({
     provinceReducer: { provinceList, loading }
   }) => ({ provinceList, loading }), shallowEqual)
-
   // console.log(selector)
 
   // useEffect(() => {
-  //     console.log(selector.promotionList)
-  // }, [selector.promotionList])
+  //     console.log(selector.provinceList)
+  // }, [selector.provinceList])
 
-  // const dispatch = useDispatch()
+  const dispatch = useDispatch()
 
   const renderProps = {
     ...selector,
-    // onChangeStatus: status => setFilter(status),
-    // onOpenUpdate: promotionId => dispatch(getUpdateAction(promotionId)),
-    // onDelete: promotionId => dispatch(doDelete(promotionId)),
+    onOpenUpdate: provinceId => dispatch(getUpdateAction(provinceId)),
+    onDelete: provinceId => dispatch(doDelete(provinceId)),
   }
 
   return <Render {...renderProps} />

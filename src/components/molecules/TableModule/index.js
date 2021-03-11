@@ -271,7 +271,7 @@ export default function TableModule({
                       <TableCell align="center">
                         <Tooltip title="Edit">
                           <IconButton onClick={() => onOpenUpdate(row[selectKey])}>
-                            <EditOutlined className="text-orange-400" />
+                            <EditOutlined className="text-yellow-600" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Delete">

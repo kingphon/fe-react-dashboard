@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import BusinessRoundedIcon from '@material-ui/icons/BusinessRounded';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Header from '../../../organisms/Header'
 import ProvinceTable from '../../../organisms/Province/ProvinceTable'
@@ -18,6 +20,7 @@ const Render = ({ createButtonLoading, onOpenCreate }) => {
         onOpenCreate={onOpenCreate}
         createButtonLoading={createButtonLoading}
       />
+      <ToastContainer />
       <ProvinceTable />
       <ProvinceModal />
     </div>

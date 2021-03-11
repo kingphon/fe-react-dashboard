@@ -1,5 +1,7 @@
 import axios from "axios";
 import { REDUX_API_URL } from "../../constants/redux-actions";
+import { toast } from "react-toastify";
+
 import {
   handleErrors,
   resetSystemErrors,
@@ -15,9 +17,6 @@ export const initialState = {
   loading: true,
   formLoading: false,
   modalFormSuccessMessage: "",
-  // filters: {
-  //   status: ALL
-  // },
   openModal: false,
   provinceList: [
   ],
@@ -88,29 +87,18 @@ export const doSave = province => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(formLoading(true));
   const {
-    provinceId,
-    firstName,
-    middleName,
-    lastName,
-    email,
-    phone,
-    provinceGroup,
-    status
+    id,
+    name,
+    slugName
   } = province;
-  const provinceGroupId = provinceGroup.provinceGroupId;
   const params = {
-    firstName,
-    middleName,
-    lastName,
-    email,
-    phone,
-    provinceGroupId,
-    status
+    name,
+    slugName
   };
-  if (!provinceId) {
+  if (!id) {
     dispatch(doCreate(params));
   } else {
-    dispatch(doUpdate({ ...params, provinceId }));
+    dispatch(doUpdate({ ...params, id }));
   }
 };
 
@@ -127,12 +115,11 @@ export const getUpdateAction = provinceId => async dispatch => {
   dispatch(modalFormSuccessMessage(""));
   dispatch(listLoading(true));
   axios
-    .get(`${PATH_API}/update/${provinceId}`, { timeout: 5000 })
+    .get(`${PATH_API}/${provinceId}`, { timeout: 5000 })
     .then(response => {
       dispatch({
-        type: SET_UPDATE_PROVINCE_MODAL,
-        province: response.data.province,
-        provinceGroupList: response.data.provinceGroupList
+        type: SET_PROVINCE,
+        province: response.data,
       });
       dispatch(setOpenModal(true));
     })
@@ -151,17 +138,20 @@ const doCreate = province => async dispatch => {
     })
     .then(response => {
       dispatch(prepareData(response.data));
-      dispatch(modalFormSuccessMessage("Province is created successfully!!"));
+      toast.success("Province is created successfully!!")
       dispatch(setProvince(initialState.province));
     })
-    .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
+    .catch(error => {
+      toast.error("error")
+      dispatch(handleErrors(error, HANDLE_ERRORS))
+    })
     .finally(() => dispatch(formLoading(false)));
 };
 
 const doUpdate = province => async dispatch => {
   const params = JSON.stringify(province);
   return axios
-    .patch(PATH_API, params, {
+    .put(`${PATH_API}/${province.id}`, params, {
       timeout: 5000,
       headers: {
         "Content-Type": "application/json"
@@ -169,7 +159,7 @@ const doUpdate = province => async dispatch => {
     })
     .then(response => {
       dispatch(prepareData(response.data));
-      dispatch(modalFormSuccessMessage("Province is update successfully!!"));
+      toast.success("Province is update successfully!!");
     })
     .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
     .finally(() => dispatch(formLoading(false)));
@@ -183,9 +173,7 @@ export const doDelete = provinceId => async dispatch => {
     .delete(`${PATH_API}/${provinceId}`)
     .then(response => {
       dispatch(prepareData(response.data));
-      dispatch(
-        openSystemPopup(true, `Delete Province #${provinceId} success!!`)
-      );
+      toast.success(`Delete Province #${provinceId} success!!`);
     })
     .catch(errors => dispatch(handleErrors(errors, HANDLE_ERRORS)))
     .finally(() => dispatch(listLoading(false)));
@@ -201,8 +189,8 @@ export default function (state = initialState, action) {
         return { ...state, loading: action.loading };
       // case RELOAD:
       //   return { ...state, reload: true };
-      // case MODAL_FORM_UPDATE_SUCCESS:
-      //   return { ...state, modalFormSuccessMessage: action.message };
+      case MODAL_FORM_UPDATE_SUCCESS:
+        return { ...state, modalFormSuccessMessage: action.message };
       case OPEN_MODAL:
         return { ...state, openModal: action.openModal };
       // case MODAL_FORM_LOADING:
@@ -229,11 +217,9 @@ export default function (state = initialState, action) {
       //     modalFormSuccessMessage: initialState.modalFormSuccessMessage
       //   };
       case SET_PROVINCE:
-        console.log(action);
         return {
           ...state,
           province: action.province,
-          modalFormSuccessMessage: initialState.modalFormSuccessMessage
         };
       // case SET_MODAL_STATUS:
       //   return {

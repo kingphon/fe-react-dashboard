@@ -10,6 +10,7 @@ import {
   setProvince
 } from '../../../../redux/reducers/provinceReducer';
 import ModalModule from "../../../molecules/ModalModule";
+import FormGroup from "../../../atoms/FormGroup";
 const Render = ({
   openModal,
   formLoading,
@@ -17,9 +18,9 @@ const Render = ({
   slugCheckBox,
   onClickCheckBox,
   province: {
-    provinceId,
-    provinceName,
-    provinceSlugName,
+    id,
+    name,
+    slugName,
   },
   errors: { formErrors },
   onChangeForm,
@@ -27,7 +28,7 @@ const Render = ({
   onClose
 }) => (
   <ModalModule
-    title={provinceId ? "Update Province" : "Create Province"}
+    title={id ? "Update Province" : "Create Province"}
     open={openModal}
     loading={formLoading}
     modalSuccess={modalFormSuccessMessage}
@@ -35,15 +36,26 @@ const Render = ({
     onPositive={onPositive}
     onClose={onClose}
   >
-    <Input
-      required
-      label="Province Name: "
-      name="provinceName"
-      value={provinceName}
-      onChange={onChangeForm}
-      disabled={!!provinceId}
-      error={formErrors.provinceName}
-    />
+    <FormGroup row>
+      {id &&
+        <Input label="Province Id: "
+          name="id"
+          width="25%"
+          value={id}
+          onChange={onChangeForm}
+          disabled={true}
+          error={formErrors.id} />
+      }
+      <Input
+        required
+        label="Province Name: "
+        name="name"
+        width={id && "70%"}
+        value={name}
+        onChange={onChangeForm}
+        error={formErrors.name}
+      />
+    </FormGroup>
     <CheckBox
       label="Customize Slug"
       checked={slugCheckBox}
@@ -52,11 +64,11 @@ const Render = ({
     <Input
       required
       label="Province Slug Name: "
-      name="provinceSlugName"
-      value={provinceSlugName}
+      name="slugName"
+      value={slugName}
       onChange={onChangeForm}
       disabled={!slugCheckBox}
-      error={formErrors.provinceSlugName}
+      error={formErrors.slugName}
     />
   </ModalModule>
 );
@@ -90,8 +102,8 @@ const ProvinceModal = () => {
     slugCheckBox,
     onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
     onChangeForm: (_, { name, value }) =>
-      !slugCheckBox && name === "provinceName" &&
-      dispatch(setProvince({ ...selector.province, [name]: value, provinceSlugName: makeSlug(value) })) ||
+      !slugCheckBox && name === "name" &&
+      dispatch(setProvince({ ...selector.province, [name]: value, slugName: makeSlug(value) })) ||
       dispatch(setProvince({ ...selector.province, [name]: value })),
     onPositive: () => dispatch(doSave(selector.province)),
     onClose: () => dispatch(closeModal())
