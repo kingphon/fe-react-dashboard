@@ -11,7 +11,7 @@ import Input from '../../atoms/Input'
 const Header = ({ headerName, createButtonLoading, headerLogo, onOpenCreate }) => {
   return (
     <>
-      <div className="h-16 bg-white p-4 px-6 flex items-center justify-between">
+      <div className="h-16 bg-white p-4 px-6 flex items-center justify-between top-0 sticky z-50">
         <div className="flex items-center w-1/4 justify-around">
           <div className="flex items-center">
             <h3>{headerName}</h3>&nbsp;

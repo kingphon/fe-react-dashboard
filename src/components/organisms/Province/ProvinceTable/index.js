@@ -21,6 +21,7 @@ const TableRowModule = ({ name, slugName }) => (
 
 const Render = ({
   provinceList,
+  clearSelected,
   loading,
   onOpenUpdate,
   onDelete
@@ -32,6 +33,7 @@ const Render = ({
     dataSources={
       provinceList
     }
+    clearSelected={clearSelected}
     row={TableRowModule}
     onDelete={onDelete}
     onOpenUpdate={provinceId => onOpenUpdate(provinceId)}
@@ -41,8 +43,8 @@ const Render = ({
 
 export default function ProvinceTable() {
   const selector = useSelector(({
-    provinceReducer: { provinceList, loading }
-  }) => ({ provinceList, loading }), shallowEqual)
+    provinceReducer: { provinceList, clearSelected, loading }
+  }) => ({ provinceList, clearSelected, loading }), shallowEqual)
   // console.log(selector)
 
   // useEffect(() => {

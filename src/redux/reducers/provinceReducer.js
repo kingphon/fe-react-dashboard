@@ -1,6 +1,8 @@
 import axios from "axios";
 import { REDUX_API_URL } from "../../constants/redux-actions";
 import { toast } from "react-toastify";
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 import {
   handleErrors,
@@ -12,6 +14,7 @@ const prefix = "PROVINCE_";
 // API
 const PATH_API = `${REDUX_API_URL}/provinces`;
 const createAction = action => `${prefix}${action}`;
+const MySwal = withReactContent(Swal)
 
 export const initialState = {
   loading: true,
@@ -22,6 +25,7 @@ export const initialState = {
   ],
   province: {
   },
+  clearSelected: true,
   errors: {
     formErrors: {},
     errorMessage: ""
@@ -29,14 +33,10 @@ export const initialState = {
 };
 
 const LIST_LOADING = createAction("LIST_LOADING");
+const CLEAR_SELECTED = createAction("CLEAR_SELECTED");
 const OPEN_MODAL = createAction("OPEN_MODAL");
-// const RELOAD = createAction("RELOAD");
 const PREPARE_DATA = createAction("PREPARE_DATA");
-// const UPDATE_FILTERS = createAction("UPDATE_FILTERS");
 const MODAL_FORM_LOADING = createAction("MODAL_FORM_LOADING");
-const MODAL_FORM_GET_CREATE_ACTION = createAction(
-  "MODAL_FORM_GET_CREATE_ACTION"
-);
 const MODAL_FORM_UPDATE_SUCCESS = createAction("MODAL_FORM_UPDATE_SUCESS");
 const SET_PROVINCE = createAction("SET_PROVINCE");
 const SET_MODAL_STATUS = createAction("SET_MODAL_STATUS");
@@ -47,6 +47,7 @@ const HANDLE_ERRORS = createAction("HANDLE_ERRORS");
 const SET_ERRORS = createAction("SET_ERRORS");
 
 const listLoading = loading => ({ type: LIST_LOADING, loading });
+const clearSelected = clearSelected => ({ type: CLEAR_SELECTED, clearSelected });
 const formLoading = loading => ({ type: MODAL_FORM_LOADING, loading });
 const prepareData = data => ({
   type: PREPARE_DATA,
@@ -169,14 +170,45 @@ export const doDelete = provinceId => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(listLoading(true));
   dispatch(setErrors(initialState.errors));
-  return axios
-    .delete(`${PATH_API}/${provinceId}`)
-    .then(response => {
-      dispatch(prepareData(response.data));
-      toast.success(`Delete Province #${provinceId} success!!`);
-    })
-    .catch(errors => dispatch(handleErrors(errors, HANDLE_ERRORS)))
-    .finally(() => dispatch(listLoading(false)));
+  const params = JSON.stringify(provinceId);
+  MySwal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      return !Array.isArray(provinceId) ?
+        axios
+          .delete(`${PATH_API}/${provinceId}`)
+          .then(response => {
+            dispatch(prepareData(response.data));
+
+            toast.success(`Delete Province #${provinceId} success!!`);
+          })
+          .catch(errors => dispatch(handleErrors(errors, HANDLE_ERRORS)))
+          .finally(() => dispatch(listLoading(false))) :
+        axios
+          .post(`${PATH_API}/delete-items`, params, {
+            timeout: 5000,
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
+          .then(response => {
+            dispatch(prepareData(response.data));
+            toast.success(`Delete Province #${provinceId} success!!`)
+          })
+          .catch(error => {
+            toast.error("error")
+            dispatch(handleErrors(error, HANDLE_ERRORS))
+          })
+          .finally(() => dispatch(listLoading(false)));
+    }
+  })
 };
 
 // export const setFilters = filters => ({ type: UPDATE_FILTERS, filters });
@@ -187,6 +219,8 @@ export default function (state = initialState, action) {
     switch (action.type) {
       case LIST_LOADING:
         return { ...state, loading: action.loading };
+      case CLEAR_SELECTED:
+        return { ...state, clearSelected: action.clearSelected };
       // case RELOAD:
       //   return { ...state, reload: true };
       case MODAL_FORM_UPDATE_SUCCESS:

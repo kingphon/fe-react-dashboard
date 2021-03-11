@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import PropTypes from "prop-types";
 // import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
@@ -162,6 +162,7 @@ export default function TableModule({
   selectKey,
   loading,
   headCells,
+  clearSelected,
   children,
   dataSources,
   config = {
@@ -181,6 +182,10 @@ export default function TableModule({
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchKeyWord, setSearchKeyWord] = React.useState("");
+
+  useEffect(() => {
+    setSelected([])
+  }, [dataSources])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -225,7 +230,7 @@ export default function TableModule({
       <Paper className="relative w-full">
         <EnhancedTableToolbar
           numSelected={selected.length}
-        // onDelete={() => onDelete(selected)}
+          onDelete={() => onDelete(selected)}
         />
         <TableContainer>
           <Table
