@@ -1,6 +1,6 @@
 import axios from "axios";
 import { REDUX_API_URL } from "../../constants/redux-actions";
-import { ALL, STOP, UNAVAILABLE, AVAILABLE } from "../../constants/entites";
+import { ALL, STOP, UNAVAILABLE, AVAILABLE } from "../../constants/entities";
 import {
   handleErrors,
   resetSystemErrors,

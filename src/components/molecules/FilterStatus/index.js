@@ -3,7 +3,7 @@ import Fieldset from '../../atoms/Fieldset'
 import { Radio, FormGroup, RadioGroup, FormControlLabel } from '@material-ui/core';
 import SortRoundedIcon from '@material-ui/icons/SortRounded';
 
-// import { ALL } from '../../../constants/entites';
+// import { ALL } from '../../../constants/entities';
 const FilterStatus = ({
     children,
     statusValue = "ALL",

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState } from 'react'
 import NotificationsActiveRoundedIcon from '@material-ui/icons/NotificationsActiveRounded';
 import ArrowDropDownRoundedIcon from '@material-ui/icons/ArrowDropDownRounded';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -8,7 +8,14 @@ import AddBoxRoundedIcon from '@material-ui/icons/AddBoxRounded';
 import Button from '../../atoms/Button'
 import Input from '../../atoms/Input'
 
-const Header = ({ headerName, createButtonLoading, headerLogo, onOpenCreate }) => {
+const Header = ({
+  headerName,
+  createButtonLoading,
+  headerLogo,
+  onChangeSearchKeywords,
+  onOpenCreate,
+}) => {
+  const [searchKeywords, setSearchKeywords] = useState("")
   return (
     <>
       <div className="h-16 bg-white p-4 px-6 flex items-center justify-between top-0 sticky z-50">
@@ -37,6 +44,11 @@ const Header = ({ headerName, createButtonLoading, headerLogo, onOpenCreate }) =
               ),
             }}
             fullWidth
+            value={searchKeywords}
+            onChange={(_, { value }) => {
+              setSearchKeywords(value)
+              onChangeSearchKeywords(value)
+            }}
           />
         </div>
         <div className="flex items-center w-1/4 justify-around">

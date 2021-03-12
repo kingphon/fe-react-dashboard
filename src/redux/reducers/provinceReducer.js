@@ -1,8 +1,10 @@
 import axios from "axios";
+
 import { REDUX_API_URL } from "../../constants/redux-actions";
 import { toast } from "react-toastify";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+import { CONFIRM_DELETE } from "../../commons/sweet-alert-modal"
+import { ALL } from '../../constants/entities'
+
 
 import {
   handleErrors,
@@ -14,18 +16,20 @@ const prefix = "PROVINCE_";
 // API
 const PATH_API = `${REDUX_API_URL}/provinces`;
 const createAction = action => `${prefix}${action}`;
-const MySwal = withReactContent(Swal)
 
 export const initialState = {
   loading: true,
   formLoading: false,
   modalFormSuccessMessage: "",
   openModal: false,
+  filters: {
+    status: ALL
+  },
   provinceList: [
   ],
   province: {
   },
-  clearSelected: true,
+  searchKeywords: "",
   errors: {
     formErrors: {},
     errorMessage: ""
@@ -33,21 +37,20 @@ export const initialState = {
 };
 
 const LIST_LOADING = createAction("LIST_LOADING");
-const CLEAR_SELECTED = createAction("CLEAR_SELECTED");
 const OPEN_MODAL = createAction("OPEN_MODAL");
 const PREPARE_DATA = createAction("PREPARE_DATA");
 const MODAL_FORM_LOADING = createAction("MODAL_FORM_LOADING");
 const MODAL_FORM_UPDATE_SUCCESS = createAction("MODAL_FORM_UPDATE_SUCESS");
 const SET_PROVINCE = createAction("SET_PROVINCE");
+const SET_SEARCH_KEYWORDS = createAction("SET_SEARCH_KEYWORDS");
 const SET_MODAL_STATUS = createAction("SET_MODAL_STATUS");
 const SET_SELECTED_FILTER = createAction("SET_SELECTED_FILTER");
 const CLOSE_MODAL = createAction("CLOSE_MODAL");
-const SET_UPDATE_PROVINCE_MODAL = createAction("SET_UPDATE_PROVINCE_MODAL");
+const UPDATE_FILTERS = createAction("UPDATE_FILTERS");
 const HANDLE_ERRORS = createAction("HANDLE_ERRORS");
 const SET_ERRORS = createAction("SET_ERRORS");
 
 const listLoading = loading => ({ type: LIST_LOADING, loading });
-const clearSelected = clearSelected => ({ type: CLEAR_SELECTED, clearSelected });
 const formLoading = loading => ({ type: MODAL_FORM_LOADING, loading });
 const prepareData = data => ({
   type: PREPARE_DATA,
@@ -61,6 +64,8 @@ const modalFormSuccessMessage = message => ({
 });
 
 export const setProvince = province => ({ type: SET_PROVINCE, province });
+
+export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
 
 export const setModalStatus = modalStatus => ({
   type: SET_MODAL_STATUS,
@@ -90,12 +95,17 @@ export const doSave = province => async dispatch => {
   const {
     id,
     name,
-    slugName
+    slugName,
+    status
   } = province;
   const params = {
     name,
-    slugName
+    slugName,
+    status,
   };
+  if (!status) {
+    params.status = "ACTIVE"
+  }
   if (!id) {
     dispatch(doCreate(params));
   } else {
@@ -109,7 +119,7 @@ export const getCreateAction = () => dispatch => {
   dispatch(setOpenModal(true))
 };
 
-// export const doFilters = filters => ({ type: UPDATE_FILTERS, filters });
+export const doFilters = filters => ({ type: UPDATE_FILTERS, filters });
 
 export const getUpdateAction = provinceId => async dispatch => {
   dispatch(resetSystemErrors());
@@ -130,6 +140,7 @@ export const getUpdateAction = provinceId => async dispatch => {
 
 const doCreate = province => async dispatch => {
   const params = JSON.stringify(province);
+  console.log(params)
   axios
     .post(PATH_API, params, {
       timeout: 5000,
@@ -161,6 +172,7 @@ const doUpdate = province => async dispatch => {
     .then(response => {
       dispatch(prepareData(response.data));
       toast.success("Province is update successfully!!");
+      dispatch(closeModal())
     })
     .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
     .finally(() => dispatch(formLoading(false)));
@@ -171,22 +183,13 @@ export const doDelete = provinceId => async dispatch => {
   dispatch(listLoading(true));
   dispatch(setErrors(initialState.errors));
   const params = JSON.stringify(provinceId);
-  MySwal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  }).then((result) => {
+  CONFIRM_DELETE("Bạn sẽ không thể khôi phục lại dữ liệu").then((result) => {
     if (result.isConfirmed) {
       return !Array.isArray(provinceId) ?
         axios
           .delete(`${PATH_API}/${provinceId}`)
           .then(response => {
             dispatch(prepareData(response.data));
-
             toast.success(`Delete Province #${provinceId} success!!`);
           })
           .catch(errors => dispatch(handleErrors(errors, HANDLE_ERRORS)))
@@ -211,7 +214,7 @@ export const doDelete = provinceId => async dispatch => {
   })
 };
 
-// export const setFilters = filters => ({ type: UPDATE_FILTERS, filters });
+export const setFilters = filters => ({ type: UPDATE_FILTERS, filters });
 
 export default function (state = initialState, action) {
   // console.log(action.type)
@@ -219,8 +222,6 @@ export default function (state = initialState, action) {
     switch (action.type) {
       case LIST_LOADING:
         return { ...state, loading: action.loading };
-      case CLEAR_SELECTED:
-        return { ...state, clearSelected: action.clearSelected };
       // case RELOAD:
       //   return { ...state, reload: true };
       case MODAL_FORM_UPDATE_SUCCESS:
@@ -239,11 +240,11 @@ export default function (state = initialState, action) {
           provinceList: action.provinceList,
           loading: false
         };
-      // case UPDATE_FILTERS:
-      //   return {
-      //     ...state,
-      //     filters: action.filters
-      //   };
+      case UPDATE_FILTERS:
+        return {
+          ...state,
+          filters: action.filters
+        };
       // case MODAL_FORM_GET_CREATE_ACTION:
       //   return {
       //     ...state,
@@ -254,6 +255,11 @@ export default function (state = initialState, action) {
         return {
           ...state,
           province: action.province,
+        };
+      case SET_SEARCH_KEYWORDS:
+        return {
+          ...state,
+          searchKeywords: action.searchKeywords,
         };
       // case SET_MODAL_STATUS:
       //   return {

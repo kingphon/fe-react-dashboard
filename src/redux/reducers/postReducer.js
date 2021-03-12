@@ -1,6 +1,6 @@
 import { REDUX_API_URL } from '../../constants/redux-actions'
 import axios from 'axios'
-import { ACTIVE } from '../../constants/entites';
+import { ACTIVE } from '../../constants/entities';
 import { handleErrors, resetSystemErrors } from './rootReducer';
 
 const prefix = 'POST_'

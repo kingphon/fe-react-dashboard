@@ -1,6 +1,6 @@
 import React from 'react'
 import { Switch, FormGroup, FormControlLabel } from '@material-ui/core';
-import { ACTIVE, HIDDEN } from '../../../constants/entites';
+import { ACTIVE, HIDDEN } from '../../../constants/entities';
 
 const ToggleActive = ({
     color = "primary",

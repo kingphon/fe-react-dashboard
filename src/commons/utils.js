@@ -1,4 +1,4 @@
-// import moment from 'moment'
+import moment from 'moment'
 
 export const makeSlug = str => {
     str = str.toLowerCase();
@@ -32,6 +32,6 @@ export const makeSlug = str => {
 //     return errors
 // }
 
-// export const formatDateTime = (date, pattern = "HH:mm:ss DD/MM/YYYY") => moment(date).format(pattern)
+export const formatDateTime = (date, pattern = "HH:mm:ss DD/MM/YYYY") => moment(date).format(pattern)
 
-// export const formatDate = (date, pattern = "DD/MM/YYYY") => moment(date).format(pattern)
+export const formatDate = (date, pattern = "DD/MM/YYYY") => moment(date).format(pattern)

@@ -162,12 +162,12 @@ export default function TableModule({
   selectKey,
   loading,
   headCells,
-  clearSelected,
   children,
   dataSources,
   config = {
     selectColor: "primary"
   },
+  searchKeywords,
   row,
   onDelete,
   onOpenUpdate,
@@ -175,14 +175,12 @@ export default function TableModule({
 }) {
   // const classes = useStyles();
   const [order, setOrder] = React.useState("desc");
-  const [orderBy, setOrderBy] = React.useState("createDate");
+  const [orderBy, setOrderBy] = React.useState("updateDate");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   // eslint-disable-next-line
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [searchKeyWord, setSearchKeyWord] = React.useState("");
-
   useEffect(() => {
     setSelected([])
   }, [dataSources])
@@ -195,8 +193,8 @@ export default function TableModule({
 
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelecteds = dataSources.map(item => item[selectKey]);
-      setSelected(newSelecteds);
+      const newSelected = dataSources.map(item => item[selectKey]);
+      setSelected(newSelected);
       return;
     }
     setSelected([]);
@@ -249,7 +247,7 @@ export default function TableModule({
               rowCount={dataSources.length}
             />
             <TableBody>
-              {stableSort(search(dataSources, searchKeyWord), getSorting(order, orderBy))
+              {stableSort(search(dataSources, searchKeywords), getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const isItemSelected = isSelected(row[selectKey]);

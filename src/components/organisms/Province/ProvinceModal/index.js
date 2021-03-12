@@ -4,13 +4,15 @@ import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import Input from "../../../atoms/Input";
 import CheckBox from "../../../atoms/CheckBox";
 import { makeSlug } from "../../../../commons/utils";
+import ModalModule from "../../../molecules/ModalModule";
+import FormGroup from "../../../atoms/FormGroup";
+import ToggleActive from "../../../atoms/ToggleActive";
+
 import {
   closeModal,
   doSave,
   setProvince
 } from '../../../../redux/reducers/provinceReducer';
-import ModalModule from "../../../molecules/ModalModule";
-import FormGroup from "../../../atoms/FormGroup";
 const Render = ({
   openModal,
   formLoading,
@@ -21,6 +23,7 @@ const Render = ({
     id,
     name,
     slugName,
+    status
   },
   errors: { formErrors },
   onChangeForm,
@@ -56,11 +59,18 @@ const Render = ({
         error={formErrors.name}
       />
     </FormGroup>
-    <CheckBox
-      label="Customize Slug"
-      checked={slugCheckBox}
-      onClick={onClickCheckBox}
-    />
+
+    <FormGroup row>
+      <CheckBox
+        label="Customize Slug"
+        checked={slugCheckBox}
+        onClick={onClickCheckBox}
+      />
+      <ToggleActive
+        checked={status}
+        onChange={onChangeForm}
+      />
+    </FormGroup>
     <Input
       required
       label="Province Slug Name: "

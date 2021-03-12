@@ -1,5 +1,9 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector, shallowEqual } from 'react-redux'
+import React, { useEffect, useState } from 'react'
+import {
+  useDispatch,
+  useSelector,
+  shallowEqual
+} from 'react-redux'
 import BusinessRoundedIcon from '@material-ui/icons/BusinessRounded';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -8,10 +12,18 @@ import Header from '../../../organisms/Header'
 import ProvinceTable from '../../../organisms/Province/ProvinceTable'
 import ProvinceModal from '../../../organisms/Province/ProvinceModal'
 import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
-import { fetchAll, getCreateAction } from '../../../../redux/reducers/provinceReducer';
+import {
+  fetchAll,
+  getCreateAction,
+  setSearchKeywords
+} from '../../../../redux/reducers/provinceReducer';
 
 
-const Render = ({ createButtonLoading, onOpenCreate }) => {
+const Render = ({
+  createButtonLoading,
+  onChangeSearchKeywords,
+  onOpenCreate
+}) => {
   return (
     <div className="w-full h-full">
       <Header
@@ -19,6 +31,8 @@ const Render = ({ createButtonLoading, onOpenCreate }) => {
         headerLogo={<BusinessRoundedIcon />}
         onOpenCreate={onOpenCreate}
         createButtonLoading={createButtonLoading}
+        // searchKeywords={searchKeywords}
+        onChangeSearchKeywords={onChangeSearchKeywords}
       />
       <ToastContainer />
       <ProvinceTable />
@@ -29,8 +43,12 @@ const Render = ({ createButtonLoading, onOpenCreate }) => {
 
 const Province = () => {
   const selector = useSelector(({
-    provinceReducer: { createButtonLoading }
-  }) => ({ createButtonLoading }), shallowEqual)
+    provinceReducer: {
+      createButtonLoading,
+    }
+  }) => ({
+    createButtonLoading,
+  }), shallowEqual)
 
   const dispatch = useDispatch()
 
@@ -42,7 +60,8 @@ const Province = () => {
 
   const renderProps = {
     ...selector,
-    onOpenCreate: () => dispatch(getCreateAction())
+    onOpenCreate: () => dispatch(getCreateAction()),
+    onChangeSearchKeywords: (searchKeywords) => dispatch(setSearchKeywords(searchKeywords)),
   }
 
   return <Render {...renderProps} />

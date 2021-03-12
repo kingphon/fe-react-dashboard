@@ -18,7 +18,7 @@ export const CONFIRM_DELETE = (message) => {
     return Swal.fire({
         title: 'Bạn chắc chắn rồi chứ?',
         text: message,
-        type: 'warning',
+        icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Ok, Xóa',
         cancelButtonText: 'Không, Hủy!',
