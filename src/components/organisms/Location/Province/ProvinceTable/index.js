@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import TableCell from "@material-ui/core/TableCell";
 
-import { DEFAULT_STATUS, ALL, ACTIVE, HIDDEN, DELETED } from '../../../../constants/entities'
-import FilterStatus from '../../../molecules/FilterStatus';
-import TableModule from "../../../molecules/TableModule";
-import StatusLabel from '../../../atoms/StatusLabel';
+import { DEFAULT_STATUS, ALL, ACTIVE, HIDDEN, DELETED } from '../../../../../constants/entities'
+import FilterStatus from '../../../../molecules/FilterStatus';
+import TableModule from "../../../../molecules/TableModule";
+import StatusLabel from '../../../../atoms/StatusLabel';
 // REDUX
-import { doFilters, getUpdateAction, doDelete } from '../../../../redux/reducers/provinceReducer'
+import { doFilters, getUpdateAction, doDelete } from '../../../../../redux/reducers/provinceReducer'
 
 const headCells = [
   { id: "name", label: "Province Name" },
@@ -66,6 +66,9 @@ export default function ProvinceTable() {
     provinceReducer: { provinceList, filters, searchKeywords, loading }
   }) => ({ provinceList, filters, searchKeywords, loading }), shallowEqual)
 
+  if (!selector.provinceList) {
+    selector.provinceList = []
+  }
   const dispatch = useDispatch()
 
   const renderProps = {

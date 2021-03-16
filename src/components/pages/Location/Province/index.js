@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import {
   useDispatch,
   useSelector,
@@ -9,8 +9,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Header from '../../../organisms/Header'
-import ProvinceTable from '../../../organisms/Province/ProvinceTable'
-import ProvinceModal from '../../../organisms/Province/ProvinceModal'
+import ProvinceTable from '../../../organisms/Location/Province/ProvinceTable'
+import ProvinceModal from '../../../organisms/Location/Province/ProvinceModal'
 import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
 import {
   fetchAll,
@@ -20,7 +20,7 @@ import {
 
 
 const Render = ({
-  createButtonLoading,
+  // createButtonLoading,
   onChangeSearchKeywords,
   onOpenCreate
 }) => {
@@ -30,8 +30,7 @@ const Render = ({
         headerName={"Tỉnh"}
         headerLogo={<BusinessRoundedIcon />}
         onOpenCreate={onOpenCreate}
-        createButtonLoading={createButtonLoading}
-        // searchKeywords={searchKeywords}
+        // // createButtonLoading={createButtonLoading}
         onChangeSearchKeywords={onChangeSearchKeywords}
       />
       <ToastContainer />
@@ -44,10 +43,10 @@ const Render = ({
 const Province = () => {
   const selector = useSelector(({
     provinceReducer: {
-      createButtonLoading,
+      // createButtonLoading,
     }
   }) => ({
-    createButtonLoading,
+    // createButtonLoading,
   }), shallowEqual)
 
   const dispatch = useDispatch()

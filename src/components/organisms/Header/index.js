@@ -10,7 +10,7 @@ import Input from '../../atoms/Input'
 
 const Header = ({
   headerName,
-  createButtonLoading,
+  // createButtonLoading,
   headerLogo,
   onChangeSearchKeywords,
   onOpenCreate,
@@ -28,7 +28,7 @@ const Header = ({
             endIcon={<AddBoxRoundedIcon />}
             color="default"
             onClick={onOpenCreate}
-            loading={createButtonLoading}
+            // loading={createButtonLoading}
           >
             Thêm
           </Button>

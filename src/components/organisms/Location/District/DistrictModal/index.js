@@ -1,37 +1,46 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 
-import Input from "../../../atoms/Input";
-import CheckBox from "../../../atoms/CheckBox";
-import { makeSlug } from "../../../../commons/utils";
-import ModalModule from "../../../molecules/ModalModule";
-import FormGroup from "../../../atoms/FormGroup";
-import ToggleActive from "../../../atoms/ToggleActive";
+import Input from "../../../../atoms/Input";
+import CheckBox from "../../../../atoms/CheckBox";
+import { makeSlug } from "../../../../../commons/utils";
+import ModalModule from "../../../../molecules/ModalModule";
+import FormGroup from "../../../../atoms/FormGroup";
+import ComboBox from "../../../../atoms/ComboBox";
+import ToggleActive from "../../../../atoms/ToggleActive";
 
 import {
   closeModal,
   doSave,
-  setProvince
-} from '../../../../redux/reducers/provinceReducer';
+  setDistrict
+} from '../../../../../redux/reducers/districtReducer';
+
+const selectList = [
+  { label: "Đà Nẵng", value: 1 },
+  { label: "Đà Lạt", value: 2 }
+]
 const Render = ({
   openModal,
   formLoading,
   modalFormSuccessMessage,
   slugCheckBox,
+  onChangeComboBox,
   onClickCheckBox,
-  province: {
+  district: {
     id,
     name,
     slugName,
+    provinceId,
     status
   },
+  provinceList,
   errors: { formErrors },
   onChangeForm,
   onPositive,
   onClose
 }) => (
   <ModalModule
-    title={id ? "Update Province" : "Create Province"}
+    title={id ? "Update District" : "Create District"}
     open={openModal}
     loading={formLoading}
     modalSuccess={modalFormSuccessMessage}
@@ -41,7 +50,7 @@ const Render = ({
   >
     <FormGroup row>
       {id &&
-        <Input label="Province Id: "
+        <Input label="District Id: "
           name="id"
           width="25%"
           value={id}
@@ -51,7 +60,7 @@ const Render = ({
       }
       <Input
         required
-        label="Province Name: "
+        label="District Name: "
         name="name"
         width={id && "70%"}
         value={name}
@@ -59,7 +68,6 @@ const Render = ({
         error={formErrors.name}
       />
     </FormGroup>
-
     <FormGroup row>
       <CheckBox
         label="Customize Slug"
@@ -73,31 +81,42 @@ const Render = ({
     </FormGroup>
     <Input
       required
-      label="Province Slug Name: "
+      label="District Slug Name: "
       name="slugName"
       value={slugName}
       onChange={onChangeForm}
       disabled={!slugCheckBox}
       error={formErrors.slugName}
     />
+    <ComboBox
+      required
+      label="Province Name"
+      name="provinceId"
+      selectList={selectList}
+      value={provinceId}
+      onChange={onChangeComboBox}
+      error={formErrors.provinceId}
+    />
   </ModalModule>
 );
 
-const ProvinceModal = () => {
+const DistrictModal = () => {
   const selector = useSelector(
     ({
-      provinceReducer: {
+      districtReducer: {
         openModal,
         modalFormSuccessMessage,
         formLoading,
-        province,
+        district,
+        provinceList,
         errors
       }
     }) => ({
       openModal,
       modalFormSuccessMessage,
       formLoading,
-      province,
+      district,
+      provinceList,
       errors
     }),
     shallowEqual
@@ -111,15 +130,16 @@ const ProvinceModal = () => {
     ...selector,
     slugCheckBox,
     onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
+    onChangeComboBox: (event) => dispatch(setDistrict({ ...selector.district, provinceId: event.target.value })),
     onChangeForm: (_, { name, value }) =>
       !slugCheckBox && name === "name" &&
-      dispatch(setProvince({ ...selector.province, [name]: value, slugName: makeSlug(value) })) ||
-      dispatch(setProvince({ ...selector.province, [name]: value })),
-    onPositive: () => dispatch(doSave(selector.province)),
+      dispatch(setDistrict({ ...selector.district, [name]: value, slugName: makeSlug(value) })) ||
+      dispatch(setDistrict({ ...selector.district, [name]: value })),
+    onPositive: () => dispatch(doSave(selector.district)),
     onClose: () => dispatch(closeModal())
   };
 
   return <Render {...renderProps} />;
 };
 
-export default ProvinceModal;
+export default DistrictModal;
