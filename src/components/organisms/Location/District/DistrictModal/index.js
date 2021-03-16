@@ -92,7 +92,7 @@ const Render = ({
       required
       label="Province Name"
       name="provinceId"
-      selectList={selectList}
+      selectList={provinceList}
       value={provinceId}
       onChange={onChangeComboBox}
       error={formErrors.provinceId}

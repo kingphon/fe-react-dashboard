@@ -28,6 +28,9 @@ export const initialState = {
   provinceList: [
   ],
   province: {
+    name: "",
+    slugName: "",
+    status: "ACTIVE"
   },
   searchKeywords: "",
   errors: {
@@ -49,6 +52,7 @@ const CLOSE_MODAL = createAction("CLOSE_MODAL");
 const UPDATE_FILTERS = createAction("UPDATE_FILTERS");
 const HANDLE_ERRORS = createAction("HANDLE_ERRORS");
 const SET_ERRORS = createAction("SET_ERRORS");
+const SET_FORM_ERRORS = createAction("SET_FORM_ERRORS");
 
 const listLoading = loading => ({ type: LIST_LOADING, loading });
 const formLoading = loading => ({ type: MODAL_FORM_LOADING, loading });
@@ -58,6 +62,7 @@ const prepareData = data => ({
 });
 const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
 const setErrors = errors => ({ type: SET_ERRORS, errors });
+const setFormErrors = formErrors => ({ type: SET_FORM_ERRORS, formErrors });
 const modalFormSuccessMessage = message => ({
   type: MODAL_FORM_UPDATE_SUCCESS,
   message
@@ -103,13 +108,22 @@ export const doSave = province => async dispatch => {
     slugName,
     status,
   };
-  if (!status) {
-    params.status = "ACTIVE"
+  const formErrors = {}
+  for (const param in province) {
+    const element = params[param];
+    if (!element) {
+      formErrors[param] = "Vui lòng nhập đầy đủ thông tin"
+    }
   }
-  if (!id) {
-    dispatch(doCreate(params));
+  if (Object.keys(formErrors).length === 0) {
+    dispatch(setFormErrors({}))
+    if (!id) {
+      dispatch(doCreate(params));
+    } else {
+      dispatch(doUpdate({ ...params, id }));
+    }
   } else {
-    dispatch(doUpdate({ ...params, id }));
+    dispatch(setFormErrors(formErrors))
   }
 };
 
@@ -281,6 +295,14 @@ export default function (state = initialState, action) {
           errors: {
             ...initialState.errors,
             ...action.errors
+          }
+        };
+      case SET_FORM_ERRORS:
+        return {
+          ...state,
+          errors: {
+            formErrors: action.formErrors,
+            ...initialState.errors.message,
           }
         };
       case HANDLE_ERRORS:
