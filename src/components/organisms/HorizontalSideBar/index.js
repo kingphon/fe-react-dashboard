@@ -27,7 +27,7 @@ const HorizontalSideBar = () => {
       },
       {
         name: "Xã",
-        path: "/zone",
+        path: "/ward",
         icon: HouseRoundedIcon
       }]
     }

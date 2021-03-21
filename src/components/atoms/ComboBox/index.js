@@ -5,17 +5,19 @@ const ComboBox = ({
   required,
   variant = "outlined",
   label,
+  name,
   error,
   value,
   onChange,
   selectList,
   color = 'primary', ...rest }) => (
-  <FormControl variant={variant} error={error} required={required} className="w-full my-2">
+  <FormControl variant={variant} error={error} required={required} {...rest}>
     <InputLabel>{label}</InputLabel>
     <Select
       value={value}
       onChange={onChange}
       label={label}
+      name={name}
     >
       {selectList.map((select, index) =>
         <MenuItem

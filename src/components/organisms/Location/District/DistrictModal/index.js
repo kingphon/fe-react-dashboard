@@ -1,24 +1,20 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch, shallowEqual } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
-import Input from "../../../../atoms/Input";
-import CheckBox from "../../../../atoms/CheckBox";
 import { makeSlug } from "../../../../../commons/utils";
-import ModalModule from "../../../../molecules/ModalModule";
-import FormGroup from "../../../../atoms/FormGroup";
+import CheckBox from "../../../../atoms/CheckBox";
 import ComboBox from "../../../../atoms/ComboBox";
+import FormGroup from "../../../../atoms/FormGroup";
+import Input from "../../../../atoms/Input";
 import ToggleActive from "../../../../atoms/ToggleActive";
+import ModalModule from "../../../../molecules/ModalModule";
 
 import {
   closeModal,
   doSave,
   setDistrict
-} from '../../../../../redux/reducers/districtReducer';
+} from '../../../../../redux/reducers/location/districtReducer';
 
-const selectList = [
-  { label: "Đà Nẵng", value: 1 },
-  { label: "Đà Lạt", value: 2 }
-]
 const Render = ({
   openModal,
   formLoading,
@@ -89,6 +85,7 @@ const Render = ({
       error={formErrors.slugName}
     />
     <ComboBox
+      className="w-full my-2"
       required
       label="Province Name"
       name="provinceId"
@@ -130,11 +127,14 @@ const DistrictModal = () => {
     ...selector,
     slugCheckBox,
     onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
-    onChangeComboBox: (event) => dispatch(setDistrict({ ...selector.district, provinceId: event.target.value })),
-    onChangeForm: (_, { name, value }) =>
-      !slugCheckBox && name === "name" &&
-      dispatch(setDistrict({ ...selector.district, [name]: value, slugName: makeSlug(value) })) ||
-      dispatch(setDistrict({ ...selector.district, [name]: value })),
+    onChangeComboBox: (event) => dispatch(setDistrict({ ...selector.district, [event.target.name]: event.target.value })),
+    onChangeForm: (_, { name, value }) => {
+      if (!slugCheckBox && name === "name") {
+        dispatch(setDistrict({ ...selector.district, [name]: value, slugName: makeSlug(value) }))
+      } else {
+        dispatch(setDistrict({ ...selector.district, [name]: value }))
+      }
+    },
     onPositive: () => dispatch(doSave(selector.district)),
     onClose: () => dispatch(closeModal())
   };

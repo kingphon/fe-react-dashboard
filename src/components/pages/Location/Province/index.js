@@ -16,11 +16,11 @@ import {
   fetchAll,
   getCreateAction,
   setSearchKeywords
-} from '../../../../redux/reducers/provinceReducer';
+} from '../../../../redux/reducers/location/provinceReducer';
 
 
 const Render = ({
-  // createButtonLoading,
+  createButtonLoading,
   onChangeSearchKeywords,
   onOpenCreate
 }) => {
@@ -30,7 +30,7 @@ const Render = ({
         headerName={"Tỉnh"}
         headerLogo={<BusinessRoundedIcon />}
         onOpenCreate={onOpenCreate}
-        // // createButtonLoading={createButtonLoading}
+        createButtonLoading={createButtonLoading}
         onChangeSearchKeywords={onChangeSearchKeywords}
       />
       <ToastContainer />
@@ -43,10 +43,10 @@ const Render = ({
 const Province = () => {
   const selector = useSelector(({
     provinceReducer: {
-      // createButtonLoading,
+      createButtonLoading,
     }
   }) => ({
-    // createButtonLoading,
+    createButtonLoading,
   }), shallowEqual)
 
   const dispatch = useDispatch()

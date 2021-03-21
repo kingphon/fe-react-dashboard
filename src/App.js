@@ -4,7 +4,7 @@ import { Switch, Route } from 'react-router-dom'
 import Main from './components/templates/layouts/Main';
 import District from './components/pages/Location/District'
 import Province from './components/pages/Location/Province'
-import Zone from './components/pages/Location/Zone'
+import Ward from './components/pages/Location/Ward'
 
 class App extends React.Component {
   render() {
@@ -30,9 +30,9 @@ class App extends React.Component {
             <Province />
           </Main>
         </Route>
-        <Route path="/zone">
+        <Route path="/ward">
           <Main>
-            <Zone />
+            <Ward />
           </Main>
         </Route>
       </Switch>

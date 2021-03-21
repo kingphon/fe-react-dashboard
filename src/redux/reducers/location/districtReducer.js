@@ -1,50 +1,53 @@
 import axios from "axios";
-
-import { REDUX_API_URL } from "../../constants/redux-actions";
 import { toast } from "react-toastify";
-import { CONFIRM_DELETE } from "../../commons/sweet-alert-modal"
-import { ALL } from '../../constants/entities'
 
-
+import { CONFIRM_DELETE } from "../../../commons/sweet-alert-modal";
+import { ALL } from '../../../constants/entities';
+import { REDUX_API_URL } from "../../../constants/redux-actions";
 import {
   handleErrors,
-  resetSystemErrors,
-  openSystemPopup
-} from "./rootReducer";
+  resetSystemErrors
+} from "../rootReducer";
 
-const prefix = "PROVINCE_";
+const prefix = "DISTRICT_";
 // API
-const PATH_API = `${REDUX_API_URL}/provinces`;
+const PATH_API = `${REDUX_API_URL}/districts`;
 const createAction = action => `${prefix}${action}`;
 
 export const initialState = {
   loading: true,
+  createButtonLoading: false,
   formLoading: false,
   modalFormSuccessMessage: "",
   openModal: false,
   filters: {
     status: ALL
   },
-  provinceList: [
+  districtList: [
   ],
-  province: {
+  district: {
     name: "",
     slugName: "",
+    provinceId: "",
     status: "ACTIVE"
   },
+  provinceList: [],
   searchKeywords: "",
   errors: {
-    formErrors: {},
+    formErrors: {
+    },
     errorMessage: ""
   }
 };
 
 const LIST_LOADING = createAction("LIST_LOADING");
+const CREATE_BUTTON_LOADING = createAction("CREATE_BUTTON_LOADING");
 const OPEN_MODAL = createAction("OPEN_MODAL");
 const PREPARE_DATA = createAction("PREPARE_DATA");
+const PREPARE_DATA_PROVINCE = createAction("PREPARE_DATA_PROVINCE");
 const MODAL_FORM_LOADING = createAction("MODAL_FORM_LOADING");
 const MODAL_FORM_UPDATE_SUCCESS = createAction("MODAL_FORM_UPDATE_SUCESS");
-const SET_PROVINCE = createAction("SET_PROVINCE");
+const SET_DISTRICT = createAction("SET_DISTRICT");
 const SET_SEARCH_KEYWORDS = createAction("SET_SEARCH_KEYWORDS");
 const SET_MODAL_STATUS = createAction("SET_MODAL_STATUS");
 const SET_SELECTED_FILTER = createAction("SET_SELECTED_FILTER");
@@ -55,9 +58,17 @@ const SET_ERRORS = createAction("SET_ERRORS");
 const SET_FORM_ERRORS = createAction("SET_FORM_ERRORS");
 
 const listLoading = loading => ({ type: LIST_LOADING, loading });
+const createButtonLoading = loading => ({
+  type: CREATE_BUTTON_LOADING,
+  loading
+});
 const formLoading = loading => ({ type: MODAL_FORM_LOADING, loading });
 const prepareData = data => ({
   type: PREPARE_DATA,
+  districtList: data
+});
+const prepareDataProvince = data => ({
+  type: PREPARE_DATA_PROVINCE,
   provinceList: data
 });
 const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
@@ -68,7 +79,7 @@ const modalFormSuccessMessage = message => ({
   message
 });
 
-export const setProvince = province => ({ type: SET_PROVINCE, province });
+export const setDistrict = district => ({ type: SET_DISTRICT, district });
 
 export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
 
@@ -83,6 +94,13 @@ export const setSelectedFilters = selectedFilters => ({
 });
 
 export const closeModal = () => ({ type: CLOSE_MODAL });
+export const fetchAllProvince = () => async dispatch => {
+
+  return axios
+    .get(`${REDUX_API_URL}/provinces-creation`, { timeout: 5000 })
+    .then(response => dispatch(prepareDataProvince(response.data)))
+    .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
+};
 
 export const fetchAll = () => async dispatch => {
   dispatch(resetSystemErrors());
@@ -94,22 +112,24 @@ export const fetchAll = () => async dispatch => {
     .finally(() => dispatch(listLoading(false)));
 };
 
-export const doSave = province => async dispatch => {
+export const doSave = district => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(formLoading(true));
   const {
     id,
     name,
     slugName,
+    provinceId,
     status
-  } = province;
+  } = district;
   const params = {
     name,
     slugName,
+    provinceId,
     status,
   };
   const formErrors = {}
-  for (const param in province) {
+  for (const param in params) {
     const element = params[param];
     if (!element) {
       formErrors[param] = "Vui lòng nhập đầy đủ thông tin"
@@ -124,27 +144,32 @@ export const doSave = province => async dispatch => {
     }
   } else {
     dispatch(setFormErrors(formErrors))
+    dispatch(formLoading(false));
   }
 };
 
 export const getCreateAction = () => dispatch => {
+  dispatch(createButtonLoading(true));
   dispatch(resetSystemErrors());
   dispatch(modalFormSuccessMessage(""));
-  dispatch(setOpenModal(true))
+  dispatch(setOpenModal(true));
+  dispatch(fetchAllProvince());
+  dispatch(createButtonLoading(false));
 };
 
 export const doFilters = filters => ({ type: UPDATE_FILTERS, filters });
 
-export const getUpdateAction = provinceId => async dispatch => {
+export const getUpdateAction = districtId => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(modalFormSuccessMessage(""));
   dispatch(listLoading(true));
+  dispatch(fetchAllProvince());
   axios
-    .get(`${PATH_API}/${provinceId}`, { timeout: 5000 })
+    .get(`${PATH_API}/${districtId}`, { timeout: 5000 })
     .then(response => {
       dispatch({
-        type: SET_PROVINCE,
-        province: response.data,
+        type: SET_DISTRICT,
+        district: response.data,
       });
       dispatch(setOpenModal(true));
     })
@@ -152,9 +177,8 @@ export const getUpdateAction = provinceId => async dispatch => {
     .finally(() => dispatch(listLoading(false)));
 };
 
-const doCreate = province => async dispatch => {
-  const params = JSON.stringify(province);
-  console.log(params)
+const doCreate = district => async dispatch => {
+  const params = JSON.stringify(district);
   axios
     .post(PATH_API, params, {
       timeout: 5000,
@@ -164,8 +188,8 @@ const doCreate = province => async dispatch => {
     })
     .then(response => {
       dispatch(prepareData(response.data));
-      toast.success("Province is created successfully!!")
-      dispatch(setProvince(initialState.province));
+      toast.success("District is created successfully!!")
+      dispatch(setDistrict(initialState.district));
     })
     .catch(error => {
       toast.error("error")
@@ -174,10 +198,10 @@ const doCreate = province => async dispatch => {
     .finally(() => dispatch(formLoading(false)));
 };
 
-const doUpdate = province => async dispatch => {
-  const params = JSON.stringify(province);
+const doUpdate = district => async dispatch => {
+  const params = JSON.stringify(district);
   return axios
-    .put(`${PATH_API}/${province.id}`, params, {
+    .put(`${PATH_API}/${district.id}`, params, {
       timeout: 5000,
       headers: {
         "Content-Type": "application/json"
@@ -185,26 +209,26 @@ const doUpdate = province => async dispatch => {
     })
     .then(response => {
       dispatch(prepareData(response.data));
-      toast.success("Province is update successfully!!");
+      toast.success("District is update successfully!!");
       dispatch(closeModal())
     })
     .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
     .finally(() => dispatch(formLoading(false)));
 };
 
-export const doDelete = provinceId => async dispatch => {
+export const doDelete = districtId => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(listLoading(true));
   dispatch(setErrors(initialState.errors));
-  const params = JSON.stringify(provinceId);
+  const params = JSON.stringify(districtId);
   CONFIRM_DELETE("Bạn sẽ không thể khôi phục lại dữ liệu").then((result) => {
     if (result.isConfirmed) {
-      return !Array.isArray(provinceId) ?
+      return !Array.isArray(districtId) ?
         axios
-          .delete(`${PATH_API}/${provinceId}`)
+          .delete(`${PATH_API}/${districtId}`)
           .then(response => {
             dispatch(prepareData(response.data));
-            toast.success(`Delete Province #${provinceId} success!!`);
+            toast.success(`Delete District #${districtId} success!!`);
           })
           .catch(errors => dispatch(handleErrors(errors, HANDLE_ERRORS)))
           .finally(() => dispatch(listLoading(false))) :
@@ -217,7 +241,7 @@ export const doDelete = provinceId => async dispatch => {
           })
           .then(response => {
             dispatch(prepareData(response.data));
-            toast.success(`Delete Province #${provinceId} success!!`)
+            toast.success(`Delete District #${districtId} success!!`)
           })
           .catch(error => {
             toast.error("error")
@@ -231,61 +255,53 @@ export const doDelete = provinceId => async dispatch => {
 export const setFilters = filters => ({ type: UPDATE_FILTERS, filters });
 
 export default function (state = initialState, action) {
-  // console.log(action.type)
   try {
     switch (action.type) {
       case LIST_LOADING:
         return { ...state, loading: action.loading };
-      // case RELOAD:
-      //   return { ...state, reload: true };
+      case CREATE_BUTTON_LOADING:
+        return { ...state, createButtonLoading: action.loading };
       case MODAL_FORM_UPDATE_SUCCESS:
         return { ...state, modalFormSuccessMessage: action.message };
       case OPEN_MODAL:
         return { ...state, openModal: action.openModal };
-      // case MODAL_FORM_LOADING:
-      //   return {
-      //     ...state,
-      //     formLoading: action.loading,
-      //     errors: action.loading ? initialState.errors : state.errors
-      //   };
+      case MODAL_FORM_LOADING:
+        return {
+          ...state,
+          formLoading: action.loading,
+          errors: action.loading ? initialState.errors : state.errors
+        };
       case PREPARE_DATA:
         return {
           ...state,
-          provinceList: action.provinceList,
+          districtList: action.districtList,
           loading: false
+        };
+      case PREPARE_DATA_PROVINCE:
+        return {
+          ...state,
+          provinceList: action.provinceList,
         };
       case UPDATE_FILTERS:
         return {
           ...state,
           filters: action.filters
         };
-      // case MODAL_FORM_GET_CREATE_ACTION:
-      //   return {
-      //     ...state,
-      //     openModal: true,
-      //     modalFormSuccessMessage: initialState.modalFormSuccessMessage
-      //   };
-      case SET_PROVINCE:
+      case SET_DISTRICT:
         return {
           ...state,
-          province: action.province,
+          district: action.district,
         };
       case SET_SEARCH_KEYWORDS:
         return {
           ...state,
           searchKeywords: action.searchKeywords,
         };
-      // case SET_MODAL_STATUS:
-      //   return {
-      //     ...state,
-      //     modalStatus: action.modalStatus,
-      //     modalFormSuccessMessage: initialState.modalFormSuccessMessage
-      //   };
       case CLOSE_MODAL:
         return {
           ...state,
           openModal: false,
-          province: initialState.province,
+          district: initialState.district,
           formLoading: initialState.formLoading,
           errors: initialState.errors
         };

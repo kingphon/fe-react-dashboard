@@ -1,38 +1,48 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch, shallowEqual } from "react-redux";
+import {
+  shallowEqual,
+  useDispatch,
+  useSelector
+} from "react-redux";
 
-import Input from "../../../../atoms/Input";
-import CheckBox from "../../../../atoms/CheckBox";
 import { makeSlug } from "../../../../../commons/utils";
-import ModalModule from "../../../../molecules/ModalModule";
+import CheckBox from "../../../../atoms/CheckBox";
+import ComboBox from "../../../../atoms/ComboBox";
 import FormGroup from "../../../../atoms/FormGroup";
+import Input from "../../../../atoms/Input";
 import ToggleActive from "../../../../atoms/ToggleActive";
+import ModalModule from "../../../../molecules/ModalModule";
 
 import {
   closeModal,
   doSave,
-  setProvince
-} from '../../../../../redux/reducers/location/provinceReducer';
+  fetchAllDistrict, setWard
+} from '../../../../../redux/reducers/location/wardReducer';
 
 const Render = ({
   openModal,
   formLoading,
   modalFormSuccessMessage,
   slugCheckBox,
+  onChangeComboBox,
   onClickCheckBox,
-  province: {
+  ward: {
     id,
     name,
     slugName,
+    districtId,
     status
   },
+  provinceId,
+  provinceList,
+  districtList,
   errors: { formErrors },
   onChangeForm,
   onPositive,
   onClose
 }) => (
   <ModalModule
-    title={id ? "Update Province" : "Create Province"}
+    title={id ? "Update Ward" : "Create Ward"}
     open={openModal}
     loading={formLoading}
     modalSuccess={modalFormSuccessMessage}
@@ -42,7 +52,7 @@ const Render = ({
   >
     <FormGroup row>
       {id &&
-        <Input label="Province Id: "
+        <Input label="Ward Id: "
           name="id"
           width="25%"
           value={id}
@@ -52,7 +62,7 @@ const Render = ({
       }
       <Input
         required
-        label="Province Name: "
+        label="Ward Name: "
         name="name"
         width={id && "70%"}
         value={name}
@@ -73,35 +83,64 @@ const Render = ({
     </FormGroup>
     <Input
       required
-      label="Province Slug Name: "
+      label="Ward Slug Name: "
       name="slugName"
       value={slugName}
       onChange={onChangeForm}
       disabled={!slugCheckBox}
       error={formErrors.slugName}
     />
+    <FormGroup row>
+      <ComboBox
+        className="w-1/2 my-2 -mx-1"
+        required
+        label="Province Name"
+        name="provinceId"
+        selectList={provinceList}
+        value={provinceId}
+        onChange={onChangeComboBox}
+        error={formErrors.provinceId}
+      />
+      <ComboBox
+        className="w-1/2 my-2 -mx-1"
+        required
+        disabled={!provinceId}
+        label="District Name"
+        name="districtId"
+        selectList={districtList}
+        value={districtId}
+        onChange={onChangeComboBox}
+        error={formErrors.districtId}
+      />
+    </FormGroup>
   </ModalModule>
 );
 
-const ProvinceModal = () => {
+const WardModal = () => {
   const selector = useSelector(
     ({
-      provinceReducer: {
+      wardReducer: {
         openModal,
         modalFormSuccessMessage,
         formLoading,
-        province,
+        ward,
+        provinceList,
+        districtList,
         errors
       }
     }) => ({
       openModal,
       modalFormSuccessMessage,
       formLoading,
-      province,
+      ward,
+      provinceList,
+      districtList,
       errors
     }),
     shallowEqual
   );
+
+  const [provinceId, setProvinceId] = useState("")
 
   const [slugCheckBox, setSlugCheckBox] = useState(false)
 
@@ -109,20 +148,29 @@ const ProvinceModal = () => {
 
   const renderProps = {
     ...selector,
+    provinceId,
     slugCheckBox,
     onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
-    onChangeForm: (_, { name, value }) => {
-      if (!slugCheckBox && name === "name") {
-        dispatch(setProvince({ ...selector.province, [name]: value, slugName: makeSlug(value) }))
+    onChangeComboBox: (event) => {
+      if (event.target.name === "provinceId") {
+        setProvinceId(event.target.value)
+        dispatch(fetchAllDistrict(event.target.value))
       } else {
-        dispatch(setProvince({ ...selector.province, [name]: value }))
+        dispatch(setWard({ ...selector.ward, [event.target.name]: event.target.value }))
       }
     },
-    onPositive: () => dispatch(doSave(selector.province)),
+    onChangeForm: (_, { name, value }) => {
+      if (!slugCheckBox && name === "name") {
+        dispatch(setWard({ ...selector.ward, [name]: value, slugName: makeSlug(value) }))
+      } else {
+        dispatch(setWard({ ...selector.ward, [name]: value }))
+      }
+    },
+    onPositive: () => dispatch(doSave(selector.ward)),
     onClose: () => dispatch(closeModal())
   };
 
   return <Render {...renderProps} />;
 };
 
-export default ProvinceModal;
+export default WardModal;

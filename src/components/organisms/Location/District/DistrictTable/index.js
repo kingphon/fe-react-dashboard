@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import TableCell from "@material-ui/core/TableCell";
 
-import { DEFAULT_STATUS, ALL, ACTIVE, HIDDEN, DELETED } from '../../../../../constants/entities'
+import { DEFAULT_STATUS, ALL, ACTIVE, HIDDEN } from '../../../../../constants/entities'
 import FilterStatus from '../../../../molecules/FilterStatus';
 import TableModule from "../../../../molecules/TableModule";
 import StatusLabel from '../../../../atoms/StatusLabel';
 // REDUX
-import { doFilters, getUpdateAction, doDelete } from '../../../../../redux/reducers/districtReducer'
+import { doFilters, getUpdateAction, doDelete } from '../../../../../redux/reducers/location/districtReducer'
 
 const headCells = [
   { id: "name", label: "District Name" },
@@ -48,9 +48,9 @@ const Render = ({
     selectKey="id"
     headCells={headCells}
     dataSources={
-      filters.status == ALL ?
+      filters.status === ALL ?
         districtList
-        : districtList.filter(item => item.status == filters.status)
+        : districtList.filter(item => item.status === filters.status)
     }
     searchKeywords={searchKeywords}
     row={TableRowModule}

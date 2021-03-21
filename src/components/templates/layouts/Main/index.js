@@ -17,7 +17,6 @@ const Render = ({ children }) => {
 }
 
 const Main = ({ children }) => {
-  // console.log(children)
 
   const renderProps = {
     children,

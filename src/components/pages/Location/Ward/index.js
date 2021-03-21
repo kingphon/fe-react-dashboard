@@ -4,19 +4,20 @@ import {
   useSelector,
   shallowEqual
 } from 'react-redux'
-import LocationCityRoundedIcon from '@material-ui/icons/LocationCityRounded';
+import HouseRoundedIcon from '@material-ui/icons/LocationCityRounded';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Header from '../../../organisms/Header'
-import DistrictTable from '../../../organisms/Location/District/DistrictTable'
-import DistrictModal from '../../../organisms/Location/District/DistrictModal'
+import WardTable from '../../../organisms/Location/Ward/WardTable'
+import WardModal from '../../../organisms/Location/Ward/WardModal'
 import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
+
 import {
   fetchAll,
   getCreateAction,
   setSearchKeywords
-} from '../../../../redux/reducers/location/districtReducer';
+} from '../../../../redux/reducers/location/wardReducer';
 
 
 const Render = ({
@@ -27,22 +28,22 @@ const Render = ({
   return (
     <div className="w-full h-full">
       <Header
-        headerName={"Huyện"}
-        headerLogo={<LocationCityRoundedIcon />}
+        headerName={"Xã"}
+        headerLogo={<HouseRoundedIcon />}
         onOpenCreate={onOpenCreate}
         createButtonLoading={createButtonLoading}
         onChangeSearchKeywords={onChangeSearchKeywords}
       />
       <ToastContainer />
-      <DistrictTable />
-      <DistrictModal />
+      <WardTable />
+      <WardModal />
     </div>
   )
 }
 
-const District = () => {
+const Ward = () => {
   const selector = useSelector(({
-    districtReducer: {
+    wardReducer: {
       createButtonLoading,
     }
   }) => ({
@@ -65,4 +66,4 @@ const District = () => {
 
   return <Render {...renderProps} />
 }
-export default District
+export default Ward
