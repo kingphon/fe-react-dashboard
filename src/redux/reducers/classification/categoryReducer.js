@@ -9,10 +9,9 @@ import {
   resetSystemErrors
 } from "../rootReducer";
 
-
-const prefix = "WARD_";
+const prefix = "CATEGORY_";
 // API
-const PATH_API = `${REDUX_API_URL}/wards`;
+const PATH_API = `${REDUX_API_URL}/categories`;
 const createAction = action => `${prefix}${action}`;
 
 export const initialState = {
@@ -24,21 +23,16 @@ export const initialState = {
   filters: {
     status: ALL
   },
-  wardList: [
+  categoryList: [
   ],
-  ward: {
+  category: {
     name: "",
     slugName: "",
-    districtId: "",
     status: "ACTIVE"
   },
-  provinceId: "",
-  provinceList: [],
-  districtList: [],
   searchKeywords: "",
   errors: {
-    formErrors: {
-    },
+    formErrors: {},
     errorMessage: ""
   }
 };
@@ -47,11 +41,9 @@ const LIST_LOADING = createAction("LIST_LOADING");
 const CREATE_BUTTON_LOADING = createAction("CREATE_BUTTON_LOADING");
 const OPEN_MODAL = createAction("OPEN_MODAL");
 const PREPARE_DATA = createAction("PREPARE_DATA");
-const PREPARE_DATA_PROVINCE = createAction("PREPARE_DATA_PROVINCE");
-const PREPARE_DATA_DISTRICT = createAction("PREPARE_DATA_DISTRICT");
 const MODAL_FORM_LOADING = createAction("MODAL_FORM_LOADING");
 const MODAL_FORM_UPDATE_SUCCESS = createAction("MODAL_FORM_UPDATE_SUCESS");
-const SET_DISTRICT = createAction("SET_DISTRICT");
+const SET_CATEGORY = createAction("SET_CATEGORY");
 const SET_SEARCH_KEYWORDS = createAction("SET_SEARCH_KEYWORDS");
 const SET_MODAL_STATUS = createAction("SET_MODAL_STATUS");
 const SET_SELECTED_FILTER = createAction("SET_SELECTED_FILTER");
@@ -69,15 +61,7 @@ const createButtonLoading = loading => ({
 const formLoading = loading => ({ type: MODAL_FORM_LOADING, loading });
 const prepareData = data => ({
   type: PREPARE_DATA,
-  wardList: data
-});
-const prepareDataProvince = data => ({
-  type: PREPARE_DATA_PROVINCE,
-  provinceList: data
-});
-export const prepareDataDistrict = data => ({
-  type: PREPARE_DATA_DISTRICT,
-  districtList: data
+  categoryList: data
 });
 const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
 const setErrors = errors => ({ type: SET_ERRORS, errors });
@@ -87,7 +71,7 @@ const modalFormSuccessMessage = message => ({
   message
 });
 
-export const setWard = ward => ({ type: SET_DISTRICT, ward });
+export const setCategory = category => ({ type: SET_CATEGORY, category });
 
 export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
 
@@ -102,19 +86,6 @@ export const setSelectedFilters = selectedFilters => ({
 });
 
 export const closeModal = () => ({ type: CLOSE_MODAL });
-export const fetchAllProvince = () => async dispatch => {
-  return axios
-    .get(`${REDUX_API_URL}/provinces-creation`, { timeout: 5000 })
-    .then(response => dispatch(prepareDataProvince(response.data)))
-    .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
-};
-
-export const fetchAllDistrict = (provinceId) => async dispatch => {
-  return axios
-    .get(`${REDUX_API_URL}/districts-creation/${provinceId}`, { timeout: 5000 })
-    .then(response => dispatch(prepareDataDistrict(response.data)))
-    .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
-};
 
 export const fetchAll = () => async dispatch => {
   dispatch(resetSystemErrors());
@@ -126,20 +97,18 @@ export const fetchAll = () => async dispatch => {
     .finally(() => dispatch(listLoading(false)));
 };
 
-export const doSave = ward => async dispatch => {
+export const doSave = category => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(formLoading(true));
   const {
     id,
     name,
     slugName,
-    districtId,
     status
-  } = ward;
+  } = category;
   const params = {
     name,
     slugName,
-    districtId,
     status,
   };
   const formErrors = {}
@@ -166,24 +135,22 @@ export const getCreateAction = () => dispatch => {
   dispatch(createButtonLoading(true));
   dispatch(resetSystemErrors());
   dispatch(modalFormSuccessMessage(""));
-  dispatch(setOpenModal(true));
-  dispatch(fetchAllProvince());
+  dispatch(setOpenModal(true))
   dispatch(createButtonLoading(false));
 };
 
 export const doFilters = filters => ({ type: UPDATE_FILTERS, filters });
 
-export const getUpdateAction = wardId => async dispatch => {
+export const getUpdateAction = categoryId => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(modalFormSuccessMessage(""));
   dispatch(listLoading(true));
-  dispatch(fetchAllProvince());
   axios
-    .get(`${PATH_API}/${wardId}`, { timeout: 5000 })
+    .get(`${PATH_API}/${categoryId}`, { timeout: 5000 })
     .then(response => {
       dispatch({
-        type: SET_DISTRICT,
-        ward: response.data,
+        type: SET_CATEGORY,
+        category: response.data,
       });
       dispatch(setOpenModal(true));
     })
@@ -191,8 +158,8 @@ export const getUpdateAction = wardId => async dispatch => {
     .finally(() => dispatch(listLoading(false)));
 };
 
-const doCreate = ward => async dispatch => {
-  const params = JSON.stringify(ward);
+const doCreate = category => async dispatch => {
+  const params = JSON.stringify(category);
   axios
     .post(PATH_API, params, {
       timeout: 5000,
@@ -202,8 +169,8 @@ const doCreate = ward => async dispatch => {
     })
     .then(response => {
       dispatch(prepareData(response.data));
-      toast.success("Ward is created successfully!!")
-      dispatch(setWard(initialState.ward));
+      toast.success("Category is created successfully!!")
+      dispatch(setCategory(initialState.category));
     })
     .catch(error => {
       toast.error("error")
@@ -212,10 +179,10 @@ const doCreate = ward => async dispatch => {
     .finally(() => dispatch(formLoading(false)));
 };
 
-const doUpdate = ward => async dispatch => {
-  const params = JSON.stringify(ward);
+const doUpdate = category => async dispatch => {
+  const params = JSON.stringify(category);
   return axios
-    .put(`${PATH_API}/${ward.id}`, params, {
+    .put(`${PATH_API}/${category.id}`, params, {
       timeout: 5000,
       headers: {
         "Content-Type": "application/json"
@@ -223,26 +190,26 @@ const doUpdate = ward => async dispatch => {
     })
     .then(response => {
       dispatch(prepareData(response.data));
-      toast.success("Ward is update successfully!!");
+      toast.success("Category is update successfully!!");
       dispatch(closeModal())
     })
     .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
     .finally(() => dispatch(formLoading(false)));
 };
 
-export const doDelete = wardId => async dispatch => {
+export const doDelete = categoryId => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(listLoading(true));
   dispatch(setErrors(initialState.errors));
-  const params = JSON.stringify(wardId);
+  const params = JSON.stringify(categoryId);
   CONFIRM_DELETE("Bạn sẽ không thể khôi phục lại dữ liệu").then((result) => {
     if (result.isConfirmed) {
-      return !Array.isArray(wardId) ?
+      return !Array.isArray(categoryId) ?
         axios
-          .delete(`${PATH_API}/${wardId}`)
+          .delete(`${PATH_API}/${categoryId}`)
           .then(response => {
             dispatch(prepareData(response.data));
-            toast.success(`Delete Ward #${wardId} success!!`);
+            toast.success(`Delete Category #${categoryId} success!!`);
           })
           .catch(errors => dispatch(handleErrors(errors, HANDLE_ERRORS)))
           .finally(() => dispatch(listLoading(false))) :
@@ -255,7 +222,7 @@ export const doDelete = wardId => async dispatch => {
           })
           .then(response => {
             dispatch(prepareData(response.data));
-            toast.success(`Delete Ward #${wardId} success!!`)
+            toast.success(`Delete Category #${categoryId} success!!`)
           })
           .catch(error => {
             toast.error("error")
@@ -288,28 +255,18 @@ export default function (state = initialState, action) {
       case PREPARE_DATA:
         return {
           ...state,
-          wardList: action.wardList,
+          categoryList: action.categoryList,
           loading: false
-        };
-      case PREPARE_DATA_PROVINCE:
-        return {
-          ...state,
-          provinceList: action.provinceList,
-        };
-      case PREPARE_DATA_DISTRICT:
-        return {
-          ...state,
-          districtList: action.districtList,
         };
       case UPDATE_FILTERS:
         return {
           ...state,
           filters: action.filters
         };
-      case SET_DISTRICT:
+      case SET_CATEGORY:
         return {
           ...state,
-          ward: action.ward,
+          category: action.category,
         };
       case SET_SEARCH_KEYWORDS:
         return {
@@ -320,7 +277,7 @@ export default function (state = initialState, action) {
         return {
           ...state,
           openModal: false,
-          ward: initialState.ward,
+          category: initialState.category,
           formLoading: initialState.formLoading,
           errors: initialState.errors
         };

@@ -10,9 +10,9 @@ import {
 } from "../rootReducer";
 
 
-const prefix = "WARD_";
+const prefix = "TYPE_";
 // API
-const PATH_API = `${REDUX_API_URL}/wards`;
+const PATH_API = `${REDUX_API_URL}/types`;
 const createAction = action => `${prefix}${action}`;
 
 export const initialState = {
@@ -24,17 +24,17 @@ export const initialState = {
   filters: {
     status: ALL
   },
-  wardList: [
+  typeList: [
   ],
-  ward: {
+  typeItem: {
     name: "",
     slugName: "",
-    districtId: "",
+    typeGroupId: "",
     status: "ACTIVE"
   },
-  provinceId: "",
-  provinceList: [],
-  districtList: [],
+  categoryId: "",
+  categoryList: [],
+  typeGroupList: [],
   searchKeywords: "",
   errors: {
     formErrors: {
@@ -47,11 +47,11 @@ const LIST_LOADING = createAction("LIST_LOADING");
 const CREATE_BUTTON_LOADING = createAction("CREATE_BUTTON_LOADING");
 const OPEN_MODAL = createAction("OPEN_MODAL");
 const PREPARE_DATA = createAction("PREPARE_DATA");
-const PREPARE_DATA_PROVINCE = createAction("PREPARE_DATA_PROVINCE");
-const PREPARE_DATA_DISTRICT = createAction("PREPARE_DATA_DISTRICT");
+const PREPARE_DATA_CATEGORY = createAction("PREPARE_DATA_CATEGORY");
+const PREPARE_DATA_TYPE_GROUP = createAction("PREPARE_DATA_TYPE_GROUP");
 const MODAL_FORM_LOADING = createAction("MODAL_FORM_LOADING");
 const MODAL_FORM_UPDATE_SUCCESS = createAction("MODAL_FORM_UPDATE_SUCESS");
-const SET_DISTRICT = createAction("SET_DISTRICT");
+const SET_TYPE_ITEM = createAction("SET_TYPE_ITEM");
 const SET_SEARCH_KEYWORDS = createAction("SET_SEARCH_KEYWORDS");
 const SET_MODAL_STATUS = createAction("SET_MODAL_STATUS");
 const SET_SELECTED_FILTER = createAction("SET_SELECTED_FILTER");
@@ -69,15 +69,15 @@ const createButtonLoading = loading => ({
 const formLoading = loading => ({ type: MODAL_FORM_LOADING, loading });
 const prepareData = data => ({
   type: PREPARE_DATA,
-  wardList: data
+  typeList: data
 });
-const prepareDataProvince = data => ({
-  type: PREPARE_DATA_PROVINCE,
-  provinceList: data
+const prepareDataCategory = data => ({
+  type: PREPARE_DATA_CATEGORY,
+  categoryList: data
 });
-export const prepareDataDistrict = data => ({
-  type: PREPARE_DATA_DISTRICT,
-  districtList: data
+export const prepareDataTypeGroup = data => ({
+  type: PREPARE_DATA_TYPE_GROUP,
+  typeGroupList: data
 });
 const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
 const setErrors = errors => ({ type: SET_ERRORS, errors });
@@ -87,7 +87,7 @@ const modalFormSuccessMessage = message => ({
   message
 });
 
-export const setWard = ward => ({ type: SET_DISTRICT, ward });
+export const setTypeItem = typeItem => ({ type: SET_TYPE_ITEM, typeItem });
 
 export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
 
@@ -102,17 +102,17 @@ export const setSelectedFilters = selectedFilters => ({
 });
 
 export const closeModal = () => ({ type: CLOSE_MODAL });
-export const fetchAllProvince = () => async dispatch => {
+export const fetchAllCategory = () => async dispatch => {
   return axios
-    .get(`${REDUX_API_URL}/provinces-creation`, { timeout: 5000 })
-    .then(response => dispatch(prepareDataProvince(response.data)))
+    .get(`${REDUX_API_URL}/categories-creation`, { timeout: 5000 })
+    .then(response => dispatch(prepareDataCategory(response.data)))
     .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
 };
 
-export const fetchAllDistrict = (provinceId) => async dispatch => {
+export const fetchAllTypeGroup = (categoryId) => async dispatch => {
   return axios
-    .get(`${REDUX_API_URL}/districts-creation/${provinceId}`, { timeout: 5000 })
-    .then(response => dispatch(prepareDataDistrict(response.data)))
+    .get(`${REDUX_API_URL}/type-groups-creation/${categoryId}`, { timeout: 5000 })
+    .then(response => dispatch(prepareDataTypeGroup(response.data)))
     .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
 };
 
@@ -126,20 +126,20 @@ export const fetchAll = () => async dispatch => {
     .finally(() => dispatch(listLoading(false)));
 };
 
-export const doSave = ward => async dispatch => {
+export const doSave = typeItem => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(formLoading(true));
   const {
     id,
     name,
     slugName,
-    districtId,
+    typeGroupId,
     status
-  } = ward;
+  } = typeItem;
   const params = {
     name,
     slugName,
-    districtId,
+    typeGroupId,
     status,
   };
   const formErrors = {}
@@ -167,23 +167,23 @@ export const getCreateAction = () => dispatch => {
   dispatch(resetSystemErrors());
   dispatch(modalFormSuccessMessage(""));
   dispatch(setOpenModal(true));
-  dispatch(fetchAllProvince());
+  dispatch(fetchAllCategory());
   dispatch(createButtonLoading(false));
 };
 
 export const doFilters = filters => ({ type: UPDATE_FILTERS, filters });
 
-export const getUpdateAction = wardId => async dispatch => {
+export const getUpdateAction = typeItemId => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(modalFormSuccessMessage(""));
   dispatch(listLoading(true));
-  dispatch(fetchAllProvince());
+  dispatch(fetchAllCategory());
   axios
-    .get(`${PATH_API}/${wardId}`, { timeout: 5000 })
+    .get(`${PATH_API}/${typeItemId}`, { timeout: 5000 })
     .then(response => {
       dispatch({
-        type: SET_DISTRICT,
-        ward: response.data,
+        type: SET_TYPE_ITEM,
+        typeItem: response.data,
       });
       dispatch(setOpenModal(true));
     })
@@ -191,8 +191,8 @@ export const getUpdateAction = wardId => async dispatch => {
     .finally(() => dispatch(listLoading(false)));
 };
 
-const doCreate = ward => async dispatch => {
-  const params = JSON.stringify(ward);
+const doCreate = typeItem => async dispatch => {
+  const params = JSON.stringify(typeItem);
   axios
     .post(PATH_API, params, {
       timeout: 5000,
@@ -202,8 +202,8 @@ const doCreate = ward => async dispatch => {
     })
     .then(response => {
       dispatch(prepareData(response.data));
-      toast.success("Ward is created successfully!!")
-      dispatch(setWard(initialState.ward));
+      toast.success("TypeItem is created successfully!!")
+      dispatch(setTypeItem(initialState.typeItem));
     })
     .catch(error => {
       toast.error("error")
@@ -212,10 +212,10 @@ const doCreate = ward => async dispatch => {
     .finally(() => dispatch(formLoading(false)));
 };
 
-const doUpdate = ward => async dispatch => {
-  const params = JSON.stringify(ward);
+const doUpdate = typeItem => async dispatch => {
+  const params = JSON.stringify(typeItem);
   return axios
-    .put(`${PATH_API}/${ward.id}`, params, {
+    .put(`${PATH_API}/${typeItem.id}`, params, {
       timeout: 5000,
       headers: {
         "Content-Type": "application/json"
@@ -223,26 +223,26 @@ const doUpdate = ward => async dispatch => {
     })
     .then(response => {
       dispatch(prepareData(response.data));
-      toast.success("Ward is update successfully!!");
+      toast.success("TypeItem is update successfully!!");
       dispatch(closeModal())
     })
     .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
     .finally(() => dispatch(formLoading(false)));
 };
 
-export const doDelete = wardId => async dispatch => {
+export const doDelete = typeItemId => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(listLoading(true));
   dispatch(setErrors(initialState.errors));
-  const params = JSON.stringify(wardId);
+  const params = JSON.stringify(typeItemId);
   CONFIRM_DELETE("Bạn sẽ không thể khôi phục lại dữ liệu").then((result) => {
     if (result.isConfirmed) {
-      return !Array.isArray(wardId) ?
+      return !Array.isArray(typeItemId) ?
         axios
-          .delete(`${PATH_API}/${wardId}`)
+          .delete(`${PATH_API}/${typeItemId}`)
           .then(response => {
             dispatch(prepareData(response.data));
-            toast.success(`Delete Ward #${wardId} success!!`);
+            toast.success(`Delete TypeItem #${typeItemId} success!!`);
           })
           .catch(errors => dispatch(handleErrors(errors, HANDLE_ERRORS)))
           .finally(() => dispatch(listLoading(false))) :
@@ -255,7 +255,7 @@ export const doDelete = wardId => async dispatch => {
           })
           .then(response => {
             dispatch(prepareData(response.data));
-            toast.success(`Delete Ward #${wardId} success!!`)
+            toast.success(`Delete TypeItem #${typeItemId} success!!`)
           })
           .catch(error => {
             toast.error("error")
@@ -288,28 +288,28 @@ export default function (state = initialState, action) {
       case PREPARE_DATA:
         return {
           ...state,
-          wardList: action.wardList,
+          typeList: action.typeList,
           loading: false
         };
-      case PREPARE_DATA_PROVINCE:
+      case PREPARE_DATA_CATEGORY:
         return {
           ...state,
-          provinceList: action.provinceList,
+          categoryList: action.categoryList,
         };
-      case PREPARE_DATA_DISTRICT:
+      case PREPARE_DATA_TYPE_GROUP:
         return {
           ...state,
-          districtList: action.districtList,
+          typeGroupList: action.typeGroupList,
         };
       case UPDATE_FILTERS:
         return {
           ...state,
           filters: action.filters
         };
-      case SET_DISTRICT:
+      case SET_TYPE_ITEM:
         return {
           ...state,
-          ward: action.ward,
+          typeItem: action.typeItem,
         };
       case SET_SEARCH_KEYWORDS:
         return {
@@ -320,7 +320,7 @@ export default function (state = initialState, action) {
         return {
           ...state,
           openModal: false,
-          ward: initialState.ward,
+          typeItem: initialState.typeItem,
           formLoading: initialState.formLoading,
           errors: initialState.errors
         };

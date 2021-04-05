@@ -5,6 +5,9 @@ import Main from './components/templates/layouts/Main';
 import District from './components/pages/Location/District'
 import Province from './components/pages/Location/Province'
 import Ward from './components/pages/Location/Ward'
+import Category from './components/pages/Classification/Category'
+import TypeGroup from './components/pages/Classification/TypeGroup'
+import Type from './components/pages/Classification/Type'
 
 class App extends React.Component {
   render() {
@@ -33,6 +36,21 @@ class App extends React.Component {
         <Route path="/ward">
           <Main>
             <Ward />
+          </Main>
+        </Route>
+        <Route path="/category">
+          <Main>
+            <Category />
+          </Main>
+        </Route>
+        <Route path="/type-group">
+          <Main>
+            <TypeGroup />
+          </Main>
+        </Route>
+        <Route path="/type">
+          <Main>
+            <Type />
           </Main>
         </Route>
       </Switch>

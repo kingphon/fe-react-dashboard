@@ -3,40 +3,67 @@ import { NavLink } from "react-router-dom";
 import LocationOnRoundedIcon from '@material-ui/icons/LocationOnRounded';
 import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
 import ExpandLessRoundedIcon from '@material-ui/icons/ExpandLessRounded';
+import CategoryRoundedIcon from '@material-ui/icons/CategoryRounded';
 import BusinessRoundedIcon from '@material-ui/icons/BusinessRounded';
 import LocationCityRoundedIcon from '@material-ui/icons/LocationCityRounded';
 import HouseRoundedIcon from '@material-ui/icons/HouseRounded';
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
 
 const HorizontalSideBar = () => {
-  const [menu, setMenu] = useState([{
-    name: "Vị trí",
-    beforeIcon: LocationOnRoundedIcon,
-    afterIcon: ExpandMoreRoundedIcon,
-    subMenu: {
-      open: false,
-      item: [{
-        name: "Tỉnh",
-        path: "/province",
-        icon: BusinessRoundedIcon
+  const [menu, setMenu] = useState(
+    [
+      {
+        name: "Vị trí",
+        beforeIcon: LocationOnRoundedIcon,
+        afterIcon: ExpandMoreRoundedIcon,
+        subMenu: {
+          open: false,
+          item: [{
+            name: "Tỉnh",
+            path: "/province",
+            icon: BusinessRoundedIcon
+          },
+          {
+            name: "Huyện",
+            path: "/district",
+            icon: LocationCityRoundedIcon
+          },
+          {
+            name: "Xã",
+            path: "/ward",
+            icon: HouseRoundedIcon
+          }]
+        }
       },
       {
-        name: "Huyện",
-        path: "/district",
-        icon: LocationCityRoundedIcon
+        name: "Phân Loại",
+        beforeIcon: CategoryRoundedIcon,
+        afterIcon: ExpandMoreRoundedIcon,
+        subMenu: {
+          open: false,
+          item: [{
+            name: "Danh mục",
+            path: "/category",
+            icon: CategoryRoundedIcon
+          },
+          {
+            name: "Nhóm Loại",
+            path: "/type-group",
+            icon: CategoryRoundedIcon
+          },
+          {
+            name: "Loại",
+            path: "/type",
+            icon: CategoryRoundedIcon
+          }]
+        } 
       },
       {
-        name: "Xã",
-        path: "/ward",
-        icon: HouseRoundedIcon
-      }]
-    }
-  },
-  {
-    name: "Tài khoản",
-    icon: AccountCircleRoundedIcon,
-    path: "/account"
-  }])
+        name: "Tài khoản",
+        icon: AccountCircleRoundedIcon,
+        path: "/account"
+      }
+    ])
 
   const handleOpenSubMenu = index => {
     menu[index].subMenu.open = !menu[index].subMenu.open
