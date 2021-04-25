@@ -8,51 +8,57 @@ import Ward from './components/pages/Location/Ward'
 import Category from './components/pages/Classification/Category'
 import TypeGroup from './components/pages/Classification/TypeGroup'
 import Type from './components/pages/Classification/Type'
+import Login from './components/pages/Authentication/Login'
+import Test from './components/pages/Authentication/Test'
+import AuthRoute from './routes/AuthRoute'
 
 class App extends React.Component {
   render() {
     return (
       <Switch>
-        <Route exact path="/">
+        <AuthRoute exact path="/">
           <Main>
             <h2>Main</h2>
           </Main>
+        </AuthRoute>
+        <Route path="/login">
+          <Login />
         </Route>
-        <Route path="/account">
+        <AuthRoute path="/account">
           <Main>
-            <h2>Account</h2>
+            <Test />
           </Main>
-        </Route>
-        <Route path="/district">
+        </AuthRoute>
+        <AuthRoute path="/district">
           <Main>
             <District />
           </Main>
-        </Route>
-        <Route path="/province">
+        </AuthRoute>
+        <AuthRoute path="/province">
           <Main>
             <Province />
           </Main>
-        </Route>
-        <Route path="/ward">
+        </AuthRoute>
+        <AuthRoute path="/ward">
           <Main>
             <Ward />
           </Main>
-        </Route>
-        <Route path="/category">
+        </AuthRoute>
+        <AuthRoute path="/category">
           <Main>
             <Category />
           </Main>
-        </Route>
-        <Route path="/type-group">
+        </AuthRoute>
+        <AuthRoute path="/type-group">
           <Main>
             <TypeGroup />
           </Main>
-        </Route>
-        <Route path="/type">
+        </AuthRoute>
+        <AuthRoute path="/type">
           <Main>
             <Type />
           </Main>
-        </Route>
+        </AuthRoute>
       </Switch>
     );
   }

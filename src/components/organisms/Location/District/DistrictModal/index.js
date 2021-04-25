@@ -1,144 +1,126 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useForm, } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { schema } from "./yupSchema";
 
-import { makeSlug } from "../../../../../commons/utils";
-import CheckBox from "../../../../atoms/CheckBox";
-import ComboBox from "../../../../atoms/ComboBox";
+import RHFCheckBox from "../../../../atoms/RHFCheckBox";
+import RHFComboBox from "../../../../atoms/RHFComboBox";
 import FormGroup from "../../../../atoms/FormGroup";
-import Input from "../../../../atoms/Input";
-import ToggleActive from "../../../../atoms/ToggleActive";
+import RHFInput from "../../../../atoms/RHFInput";
+import RHFToggleActive from "../../../../atoms/RHFToggleActive";
 import ModalModule from "../../../../molecules/ModalModule";
 
 import {
   closeModal,
   doSave,
-  setDistrict
 } from '../../../../../redux/reducers/location/districtReducer';
 
 const Render = ({
   openModal,
   formLoading,
-  modalFormSuccessMessage,
-  slugCheckBox,
-  onChangeComboBox,
-  onClickCheckBox,
+  methods,
   district: {
-    id,
-    name,
-    slugName,
-    provinceId,
-    status
+    id
   },
   provinceList,
-  errors: { formErrors },
-  onChangeForm,
   onPositive,
   onClose
-}) => (
-  <ModalModule
-    title={id ? "Update District" : "Create District"}
-    open={openModal}
-    loading={formLoading}
-    modalSuccess={modalFormSuccessMessage}
-    maxWidth="md"
-    onPositive={onPositive}
-    onClose={onClose}
-  >
-    <FormGroup row>
-      {id &&
-        <Input label="District Id: "
-          name="id"
-          width="25%"
-          value={id}
-          onChange={onChangeForm}
-          disabled={true}
-          error={formErrors.id} />
+}) => {
+
+  const { handleSubmit, watch, getValues, setValues, reset, setValue, control } = methods
+  const watchCustomizeSlug = watch("customizeSlug"); // you can supply default value as second argument
+
+  return (
+    <ModalModule
+      title={id ? "Update District" : "Create District"}
+      open={openModal}
+      loading={formLoading}
+      maxWidth="md"
+      handleSubmit={handleSubmit(data => onPositive(data))}
+      onClose={onClose}
+      methods={methods}
+    >
+      <FormGroup row>
+        {id &&
+          <RHFInput
+            label="District Id: "
+            name="id"
+            width="25%"
+            disabled={true}
+          />
+        }
+        <RHFInput
+          label="District Name: *"
+          name="name"
+          width={id ? "70%" : "100%"}
+        />
+      </FormGroup>
+      <FormGroup row>
+        <RHFCheckBox
+          name="customizeSlug"
+          label="Customize Slug"
+        />
+        <RHFToggleActive />
+      </FormGroup>
+      {watchCustomizeSlug &&
+        <RHFInput
+          label="District Slug Name: "
+          name="slugName"
+        />
       }
-      <Input
-        required
-        label="District Name: "
-        name="name"
-        width={id && "70%"}
-        value={name}
-        onChange={onChangeForm}
-        error={formErrors.name}
+      <RHFComboBox
+        className="w-full my-2"
+        label="Province Name: *"
+        name="provinceId"
+        selectList={provinceList}
       />
-    </FormGroup>
-    <FormGroup row>
-      <CheckBox
-        label="Customize Slug"
-        checked={slugCheckBox}
-        onClick={onClickCheckBox}
-      />
-      <ToggleActive
-        checked={status}
-        onChange={onChangeForm}
-      />
-    </FormGroup>
-    <Input
-      required
-      label="District Slug Name: "
-      name="slugName"
-      value={slugName}
-      onChange={onChangeForm}
-      disabled={!slugCheckBox}
-      error={formErrors.slugName}
-    />
-    <ComboBox
-      className="w-full my-2"
-      required
-      label="Province Name"
-      name="provinceId"
-      selectList={provinceList}
-      value={provinceId}
-      onChange={onChangeComboBox}
-      error={formErrors.provinceId}
-    />
-  </ModalModule>
-);
+    </ModalModule>
+  )
+};
 
 const DistrictModal = () => {
   const selector = useSelector(
     ({
       districtReducer: {
         openModal,
-        modalFormSuccessMessage,
         formLoading,
         district,
         provinceList,
-        errors
       }
     }) => ({
       openModal,
-      modalFormSuccessMessage,
       formLoading,
       district,
       provinceList,
-      errors
     }),
     shallowEqual
   );
 
-  const [slugCheckBox, setSlugCheckBox] = useState(false)
+  let methods = useForm({
+    defaultValues: selector.district,
+    resolver: yupResolver(schema),
+  })
+
+  useEffect(() => {
+    for (const key in selector.district) {
+      if (Object.hasOwnProperty.call(selector.district, key)) {
+        const element = selector.district[key];
+        methods.setValue(key, element)
+      }
+    }
+    methods.clearErrors()
+  }, [selector.district])
 
   const dispatch = useDispatch();
 
   const renderProps = {
     ...selector,
-    slugCheckBox,
-    onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
-    onChangeComboBox: (event) => dispatch(setDistrict({ ...selector.district, [event.target.name]: event.target.value })),
-    onChangeForm: (_, { name, value }) => {
-      if (!slugCheckBox && name === "name") {
-        dispatch(setDistrict({ ...selector.district, [name]: value, slugName: makeSlug(value) }))
-      } else {
-        dispatch(setDistrict({ ...selector.district, [name]: value }))
-      }
-    },
-    onPositive: () => dispatch(doSave(selector.district)),
+    methods,
+
+    onPositive: (data) => dispatch(doSave(data)),
     onClose: () => dispatch(closeModal())
   };
-
   return <Render {...renderProps} />;
 };
 

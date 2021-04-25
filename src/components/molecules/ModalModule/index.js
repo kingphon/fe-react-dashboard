@@ -1,6 +1,7 @@
 import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
+import { FormProvider } from "react-hook-form";
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
@@ -24,8 +25,10 @@ export default function ModalModule({
   showPositiveButton = true,
   positiveButtonLabel = "Ok",
   negativeButtonLabel = "Cancel",
+  handleSubmit,
   onPositive,
   onClose,
+  methods,
   onLoaded = false,
   ...rest
 }) {
@@ -47,9 +50,29 @@ export default function ModalModule({
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent dividers className="relative pt-3 px-4 pb-2" style={{ boxSizing: 'border-box', minWidth }}>
-        <form onSubmit={onPositive}>
-          {children}
-        </form>
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit}>
+            {children}
+            <DialogActions
+              className="py-3 px-4"
+            >
+              {showPositiveButton && <Button
+                loading={loading}
+                disabled={positiveDisabled}
+                icon={<Check />}
+                type="submit"
+                content={positiveButtonLabel}
+              />}
+              <Button
+                icon={<Close />}
+                color="default"
+                disabled={loading}
+                onClick={handleClose}
+                content={negativeButtonLabel}
+              />
+            </DialogActions>
+          </form>
+        </FormProvider>
         {modalSuccess && <ModalSuccess message={modalSuccess} />}
         {modalError && <ModalError message={modalError} />}
         <Backdrop
@@ -59,24 +82,6 @@ export default function ModalModule({
           {onLoaded && <CircularProgress />}
         </Backdrop>
       </DialogContent>
-      <DialogActions
-        className="py-3 px-4"
-      >
-        {showPositiveButton && <Button
-          loading={loading}
-          disabled={positiveDisabled}
-          icon={<Check />}
-          onClick={onPositive}
-          content={positiveButtonLabel}
-        />}
-        <Button
-          icon={<Close />}
-          color="default"
-          disabled={loading}
-          onClick={handleClose}
-          content={negativeButtonLabel}
-        />
-      </DialogActions>
     </Dialog>
   );
 }

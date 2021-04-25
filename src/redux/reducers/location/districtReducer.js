@@ -2,8 +2,10 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 import { CONFIRM_DELETE } from "../../../commons/sweet-alert-modal";
-import { ALL } from '../../../constants/entities';
+import { ACTIVE, ALL, HIDDEN } from '../../../constants/entities';
 import { REDUX_API_URL } from "../../../constants/redux-actions";
+import { makeSlug } from "../../../commons/utils";
+
 import {
   handleErrors,
   resetSystemErrors
@@ -13,6 +15,15 @@ const prefix = "DISTRICT_";
 // API
 const PATH_API = `${REDUX_API_URL}/districts`;
 const createAction = action => `${prefix}${action}`;
+
+const defaultValues = {
+  id: null,
+  name: "",
+  customizeSlug: false,
+  slugName: "",
+  status: true,
+  provinceId: ""
+}
 
 export const initialState = {
   loading: true,
@@ -25,12 +36,8 @@ export const initialState = {
   },
   districtList: [
   ],
-  district: {
-    name: "",
-    slugName: "",
-    provinceId: "",
-    status: "ACTIVE"
-  },
+  district: defaultValues,
+  inputValue: "",
   provinceList: [],
   searchKeywords: "",
   errors: {
@@ -48,14 +55,11 @@ const PREPARE_DATA_PROVINCE = createAction("PREPARE_DATA_PROVINCE");
 const MODAL_FORM_LOADING = createAction("MODAL_FORM_LOADING");
 const MODAL_FORM_UPDATE_SUCCESS = createAction("MODAL_FORM_UPDATE_SUCESS");
 const SET_DISTRICT = createAction("SET_DISTRICT");
+const SET_DEFAULT_DISTRICT = createAction("SET_DEFAULT_DISTRICT");
 const SET_SEARCH_KEYWORDS = createAction("SET_SEARCH_KEYWORDS");
 const SET_MODAL_STATUS = createAction("SET_MODAL_STATUS");
-const SET_SELECTED_FILTER = createAction("SET_SELECTED_FILTER");
 const CLOSE_MODAL = createAction("CLOSE_MODAL");
 const UPDATE_FILTERS = createAction("UPDATE_FILTERS");
-const HANDLE_ERRORS = createAction("HANDLE_ERRORS");
-const SET_ERRORS = createAction("SET_ERRORS");
-const SET_FORM_ERRORS = createAction("SET_FORM_ERRORS");
 
 const listLoading = loading => ({ type: LIST_LOADING, loading });
 const createButtonLoading = loading => ({
@@ -72,14 +76,14 @@ const prepareDataProvince = data => ({
   provinceList: data
 });
 const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
-const setErrors = errors => ({ type: SET_ERRORS, errors });
-const setFormErrors = formErrors => ({ type: SET_FORM_ERRORS, formErrors });
 const modalFormSuccessMessage = message => ({
   type: MODAL_FORM_UPDATE_SUCCESS,
   message
 });
 
 export const setDistrict = district => ({ type: SET_DISTRICT, district });
+
+export const setDefaultDistrict = district => ({ type: SET_DEFAULT_DISTRICT, district });
 
 export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
 
@@ -88,18 +92,13 @@ export const setModalStatus = modalStatus => ({
   modalStatus
 });
 
-export const setSelectedFilters = selectedFilters => ({
-  type: SET_SELECTED_FILTER,
-  selectedFilters
-});
-
 export const closeModal = () => ({ type: CLOSE_MODAL });
 export const fetchAllProvince = () => async dispatch => {
 
   return axios
     .get(`${REDUX_API_URL}/provinces-creation`, { timeout: 5000 })
     .then(response => dispatch(prepareDataProvince(response.data)))
-    .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
+    .catch(error => toast.error(error))
 };
 
 export const fetchAll = () => async dispatch => {
@@ -108,7 +107,7 @@ export const fetchAll = () => async dispatch => {
   return axios
     .get(PATH_API, { timeout: 5000 })
     .then(response => dispatch(prepareData(response.data)))
-    .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
+    .catch(error => toast.error(error))
     .finally(() => dispatch(listLoading(false)));
 };
 
@@ -120,38 +119,25 @@ export const doSave = district => async dispatch => {
     name,
     slugName,
     provinceId,
+    customizeSlug,
     status
   } = district;
+
   const params = {
     name,
-    slugName,
-    provinceId,
-    status,
+    slugName: customizeSlug ? slugName : makeSlug(name),
+    provinceId: provinceId.value,
+    status: status ? ACTIVE : HIDDEN,
   };
-  const formErrors = {}
-  for (const param in params) {
-    const element = params[param];
-    if (!element) {
-      formErrors[param] = "Vui lòng nhập đầy đủ thông tin"
-    }
-  }
-  if (Object.keys(formErrors).length === 0) {
-    dispatch(setFormErrors({}))
-    if (!id) {
-      dispatch(doCreate(params));
-    } else {
-      dispatch(doUpdate({ ...params, id }));
-    }
+  if (!id) {
+    dispatch(doCreate(params));
   } else {
-    dispatch(setFormErrors(formErrors))
-    dispatch(formLoading(false));
+    dispatch(doUpdate({ ...params, id }));
   }
 };
 
 export const getCreateAction = () => dispatch => {
   dispatch(createButtonLoading(true));
-  dispatch(resetSystemErrors());
-  dispatch(modalFormSuccessMessage(""));
   dispatch(setOpenModal(true));
   dispatch(fetchAllProvince());
   dispatch(createButtonLoading(false));
@@ -173,7 +159,7 @@ export const getUpdateAction = districtId => async dispatch => {
       });
       dispatch(setOpenModal(true));
     })
-    .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
+    .catch(error => toast.error(error))
     .finally(() => dispatch(listLoading(false)));
 };
 
@@ -189,11 +175,10 @@ const doCreate = district => async dispatch => {
     .then(response => {
       dispatch(prepareData(response.data));
       toast.success("District is created successfully!!")
-      dispatch(setDistrict(initialState.district));
+      dispatch(setDefaultDistrict(initialState.district));
     })
     .catch(error => {
-      toast.error("error")
-      dispatch(handleErrors(error, HANDLE_ERRORS))
+      toast.error(error)
     })
     .finally(() => dispatch(formLoading(false)));
 };
@@ -212,14 +197,13 @@ const doUpdate = district => async dispatch => {
       toast.success("District is update successfully!!");
       dispatch(closeModal())
     })
-    .catch(error => dispatch(handleErrors(error, HANDLE_ERRORS)))
+    .catch(error => toast.error(error))
     .finally(() => dispatch(formLoading(false)));
 };
 
 export const doDelete = districtId => async dispatch => {
   dispatch(resetSystemErrors());
   dispatch(listLoading(true));
-  dispatch(setErrors(initialState.errors));
   const params = JSON.stringify(districtId);
   CONFIRM_DELETE("Bạn sẽ không thể khôi phục lại dữ liệu").then((result) => {
     if (result.isConfirmed) {
@@ -230,7 +214,7 @@ export const doDelete = districtId => async dispatch => {
             dispatch(prepareData(response.data));
             toast.success(`Delete District #${districtId} success!!`);
           })
-          .catch(errors => dispatch(handleErrors(errors, HANDLE_ERRORS)))
+          .catch(error => toast.error(error))
           .finally(() => dispatch(listLoading(false))) :
         axios
           .post(`${PATH_API}/delete-items`, params, {
@@ -244,8 +228,7 @@ export const doDelete = districtId => async dispatch => {
             toast.success(`Delete District #${districtId} success!!`)
           })
           .catch(error => {
-            toast.error("error")
-            dispatch(handleErrors(error, HANDLE_ERRORS))
+            toast.error(error)
           })
           .finally(() => dispatch(listLoading(false)));
     }
@@ -290,6 +273,16 @@ export default function (state = initialState, action) {
       case SET_DISTRICT:
         return {
           ...state,
+          district: {
+            ...action.district,
+            status: action.district.status === ACTIVE ? true : false,
+            customizeSlug: false,
+            provinceId: state.provinceList.find(option => option.value === action.district.provinceId)
+          },
+        };
+      case SET_DEFAULT_DISTRICT:
+        return {
+          ...state,
           district: action.district,
         };
       case SET_SEARCH_KEYWORDS:
@@ -301,33 +294,9 @@ export default function (state = initialState, action) {
         return {
           ...state,
           openModal: false,
-          district: initialState.district,
+          district: defaultValues,
           formLoading: initialState.formLoading,
           errors: initialState.errors
-        };
-      case SET_ERRORS:
-        return {
-          ...state,
-          errors: {
-            ...initialState.errors,
-            ...action.errors
-          }
-        };
-      case SET_FORM_ERRORS:
-        return {
-          ...state,
-          errors: {
-            formErrors: action.formErrors,
-            ...initialState.errors.message,
-          }
-        };
-      case HANDLE_ERRORS:
-        return {
-          ...state,
-          errors: {
-            ...state.errors,
-            ...action.errors.response.data
-          }
         };
       default:
         return { ...state };
