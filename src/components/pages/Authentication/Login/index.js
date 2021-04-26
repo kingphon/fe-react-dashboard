@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   useDispatch,
   useSelector,
@@ -6,28 +6,32 @@ import {
 } from 'react-redux'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useForm, } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useLocation, useHistory } from 'react-router-dom'
+import IconButton from '@material-ui/core/IconButton';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
-import Input from "../../../atoms/Input";
+import { schema } from "./yupSchema";
+import RHFInput from "../../../atoms/RHFInput";
 import FormGroup from "../../../atoms/FormGroup";
 import Button from '../../../atoms/Button';
-import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
+import { FormProvider } from "react-hook-form";
+import { Check } from '@material-ui/icons';
+
 import {
-  doLogin,
-  setLoginForm,
-  getCreateAction,
-  setSearchKeywords
+  doLogin
 } from '../../../../redux/reducers/rootReducer';
 
 
 const Render = ({
-  loginForm: {
-    phone,
-    password
-  },
   formLoading,
-  errors: { formErrors },
-  onChangeForm,
+  methods,
+  showPassword,
+  handleClickShowPassword,
+  handleMouseDownPassword,
+  handleSubmit,
   onSubmit
 }) => {
   return (
@@ -35,31 +39,40 @@ const Render = ({
       <ToastContainer />
       <div className="bg-white w-1/3 h-80 flex flex-col items-center p-4 justify-around rounded-md shadow">
         <h2>Login</h2>
-        <FormGroup className="w-full">
-          <Input label="Phone: "
-            name="phone"
-            loading={formLoading}
-            value={phone}
-            onChange={onChangeForm}
-            error={formErrors.phone}
-          />
-          <Input label="Password: "
-            name="password"
-            type="password"
-            loading={formLoading}
-            value={password}
-            onChange={onChangeForm}
-            error={formErrors.password}
-          />
-        </FormGroup>
-        <Button
-          loading={formLoading}
-          onClick={onSubmit}
-          content={"Login"}
-        />
+        <FormProvider {...methods}>
+          <form className="w-full contents" onSubmit={handleSubmit(data => onSubmit(data))}>
+
+            <FormGroup className="w-full">
+              <RHFInput
+                label="Phone: "
+                name="phone"
+              />
+              <RHFInput
+                label="Password: "
+                name="password"
+                type={showPassword ? "text" : "password"}
+                InputProps={{
+                  endAdornment:
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                    >
+                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                }}
+              />
+            </FormGroup>
+            <Button
+              loading={formLoading}
+              icon={<Check />}
+              type="submit"
+              content="Log in"
+            />
+          </form>
+        </FormProvider>
         <p>Forget your password?</p>
       </div>
-      <ToastContainer />
     </div>
   )
 }
@@ -68,33 +81,43 @@ const Login = () => {
   const selector = useSelector(({
     rootReducer: {
       formLoading,
-      errors,
       loginForm
     }
   }) => ({
     formLoading,
-    errors,
     loginForm
   }), shallowEqual)
 
+  const methods = useForm({
+    defaultValues: selector.loginForm,
+    resolver: yupResolver(schema),
+  })
+
+  const [showPassword, setShowPassword] = useState(false)
+
+  const { handleSubmit } = methods
+
   const dispatch = useDispatch()
-
-
 
   const history = useHistory()
   const location = useLocation()
   const { from } = location.state || { from: { pathname: "/" } }
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
   const renderProps = {
     ...selector,
-    onChangeForm: (_, { name, value }) => dispatch(setLoginForm({ ...selector.loginForm, [name]: value })),
-    onSubmit: () => dispatch(doLogin(selector.loginForm, () => history.replace(from))),
-    // onOpenCreate: () => dispatch(getCreateAction()),
-    // onChangeSearchKeywords: (searchKeywords) => dispatch(setSearchKeywords(searchKeywords)),
+    methods,
+    showPassword,
+    handleClickShowPassword,
+    handleMouseDownPassword,
+    handleSubmit,
+    onSubmit: (data) => dispatch(doLogin(data, () => history.replace(from))),
   }
 
   return <Render {...renderProps} />

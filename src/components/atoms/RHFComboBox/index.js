@@ -6,6 +6,8 @@ import { TextField } from '@material-ui/core';
 const RHFComboBox = ({
   size = "small",
   width = "100%",
+  className,
+  disabled,
   variant = "outlined",
   style = {},
   margin = "dense",
@@ -39,6 +41,8 @@ const RHFComboBox = ({
               {...rest}
             />
           )}
+          className={className}
+          disabled={disabled}
           value={field.value}
           onChange={(_, data) => field.onChange(data)}
         />

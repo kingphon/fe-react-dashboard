@@ -6,11 +6,6 @@ import { ACTIVE, ALL, HIDDEN } from '../../../constants/entities';
 import { REDUX_API_URL } from "../../../constants/redux-actions";
 import { makeSlug } from "../../../commons/utils";
 
-import {
-  handleErrors,
-  resetSystemErrors
-} from "../rootReducer";
-
 const prefix = "DISTRICT_";
 // API
 const PATH_API = `${REDUX_API_URL}/districts`;
@@ -29,7 +24,6 @@ export const initialState = {
   loading: true,
   createButtonLoading: false,
   formLoading: false,
-  modalFormSuccessMessage: "",
   openModal: false,
   filters: {
     status: ALL
@@ -40,11 +34,6 @@ export const initialState = {
   inputValue: "",
   provinceList: [],
   searchKeywords: "",
-  errors: {
-    formErrors: {
-    },
-    errorMessage: ""
-  }
 };
 
 const LIST_LOADING = createAction("LIST_LOADING");
@@ -53,11 +42,9 @@ const OPEN_MODAL = createAction("OPEN_MODAL");
 const PREPARE_DATA = createAction("PREPARE_DATA");
 const PREPARE_DATA_PROVINCE = createAction("PREPARE_DATA_PROVINCE");
 const MODAL_FORM_LOADING = createAction("MODAL_FORM_LOADING");
-const MODAL_FORM_UPDATE_SUCCESS = createAction("MODAL_FORM_UPDATE_SUCESS");
 const SET_DISTRICT = createAction("SET_DISTRICT");
 const SET_DEFAULT_DISTRICT = createAction("SET_DEFAULT_DISTRICT");
 const SET_SEARCH_KEYWORDS = createAction("SET_SEARCH_KEYWORDS");
-const SET_MODAL_STATUS = createAction("SET_MODAL_STATUS");
 const CLOSE_MODAL = createAction("CLOSE_MODAL");
 const UPDATE_FILTERS = createAction("UPDATE_FILTERS");
 
@@ -76,10 +63,6 @@ const prepareDataProvince = data => ({
   provinceList: data
 });
 const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
-const modalFormSuccessMessage = message => ({
-  type: MODAL_FORM_UPDATE_SUCCESS,
-  message
-});
 
 export const setDistrict = district => ({ type: SET_DISTRICT, district });
 
@@ -87,12 +70,8 @@ export const setDefaultDistrict = district => ({ type: SET_DEFAULT_DISTRICT, dis
 
 export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
 
-export const setModalStatus = modalStatus => ({
-  type: SET_MODAL_STATUS,
-  modalStatus
-});
-
 export const closeModal = () => ({ type: CLOSE_MODAL });
+
 export const fetchAllProvince = () => async dispatch => {
 
   return axios
@@ -102,7 +81,6 @@ export const fetchAllProvince = () => async dispatch => {
 };
 
 export const fetchAll = () => async dispatch => {
-  dispatch(resetSystemErrors());
   dispatch(listLoading(true));
   return axios
     .get(PATH_API, { timeout: 5000 })
@@ -112,7 +90,6 @@ export const fetchAll = () => async dispatch => {
 };
 
 export const doSave = district => async dispatch => {
-  dispatch(resetSystemErrors());
   dispatch(formLoading(true));
   const {
     id,
@@ -146,8 +123,6 @@ export const getCreateAction = () => dispatch => {
 export const doFilters = filters => ({ type: UPDATE_FILTERS, filters });
 
 export const getUpdateAction = districtId => async dispatch => {
-  dispatch(resetSystemErrors());
-  dispatch(modalFormSuccessMessage(""));
   dispatch(listLoading(true));
   dispatch(fetchAllProvince());
   axios
@@ -202,7 +177,6 @@ const doUpdate = district => async dispatch => {
 };
 
 export const doDelete = districtId => async dispatch => {
-  dispatch(resetSystemErrors());
   dispatch(listLoading(true));
   const params = JSON.stringify(districtId);
   CONFIRM_DELETE("Bạn sẽ không thể khôi phục lại dữ liệu").then((result) => {
@@ -244,15 +218,12 @@ export default function (state = initialState, action) {
         return { ...state, loading: action.loading };
       case CREATE_BUTTON_LOADING:
         return { ...state, createButtonLoading: action.loading };
-      case MODAL_FORM_UPDATE_SUCCESS:
-        return { ...state, modalFormSuccessMessage: action.message };
       case OPEN_MODAL:
         return { ...state, openModal: action.openModal };
       case MODAL_FORM_LOADING:
         return {
           ...state,
           formLoading: action.loading,
-          errors: action.loading ? initialState.errors : state.errors
         };
       case PREPARE_DATA:
         return {
@@ -296,7 +267,6 @@ export default function (state = initialState, action) {
           openModal: false,
           district: defaultValues,
           formLoading: initialState.formLoading,
-          errors: initialState.errors
         };
       default:
         return { ...state };

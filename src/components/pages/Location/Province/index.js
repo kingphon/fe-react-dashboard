@@ -11,7 +11,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Header from '../../../organisms/Header'
 import ProvinceTable from '../../../organisms/Location/Province/ProvinceTable'
 import ProvinceModal from '../../../organisms/Location/Province/ProvinceModal'
-import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
 import {
   fetchAll,
   getCreateAction,
@@ -52,7 +51,6 @@ const Province = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(resetSystemErrors())
     dispatch(fetchAll())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -1,33 +1,29 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch, shallowEqual } from "react-redux";
+import React, { useEffect } from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useForm, } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { schema } from "./yupSchema";
 
-import Input from "../../../../atoms/Input";
-import CheckBox from "../../../../atoms/CheckBox";
-import { makeSlug } from "../../../../../commons/utils";
-import ModalModule from "../../../../molecules/ModalModule";
+import RHFCheckBox from "../../../../atoms/RHFCheckBox";
 import FormGroup from "../../../../atoms/FormGroup";
-import ToggleActive from "../../../../atoms/ToggleActive";
+import RHFInput from "../../../../atoms/RHFInput";
+import RHFToggleActive from "../../../../atoms/RHFToggleActive";
+import ModalModule from "../../../../molecules/ModalModule";
 
 import {
   closeModal,
-  doSave,
-  setProvince
+  doSave
 } from '../../../../../redux/reducers/location/provinceReducer';
 
 const Render = ({
   openModal,
   formLoading,
-  modalFormSuccessMessage,
-  slugCheckBox,
-  onClickCheckBox,
+  methods,
+  handleSubmit,
+  watchCustomizeSlug,
   province: {
-    id,
-    name,
-    slugName,
-    status
+    id
   },
-  errors: { formErrors },
-  onChangeForm,
   onPositive,
   onClose
 }) => (
@@ -35,51 +31,39 @@ const Render = ({
     title={id ? "Update Province" : "Create Province"}
     open={openModal}
     loading={formLoading}
-    modalSuccess={modalFormSuccessMessage}
     maxWidth="md"
-    onPositive={onPositive}
+    handleSubmit={handleSubmit(data => onPositive(data))}
     onClose={onClose}
+    methods={methods}
   >
     <FormGroup row>
       {id &&
-        <Input label="Province Id: "
+        <RHFInput
+          label="Province Id: "
           name="id"
           width="25%"
-          value={id}
-          onChange={onChangeForm}
           disabled={true}
-          error={formErrors.id} />
+        />
       }
-      <Input
-        required
-        label="Province Name: "
+      <RHFInput
+        label="Province Name: *"
         name="name"
-        width={id && "70%"}
-        value={name}
-        onChange={onChangeForm}
-        error={formErrors.name}
+        width={id ? "70%" : "100%"}
       />
     </FormGroup>
     <FormGroup row>
-      <CheckBox
+      <RHFCheckBox
+        name="customizeSlug"
         label="Customize Slug"
-        checked={slugCheckBox}
-        onClick={onClickCheckBox}
       />
-      <ToggleActive
-        checked={status}
-        onChange={onChangeForm}
-      />
+      <RHFToggleActive />
     </FormGroup>
-    <Input
-      required
-      label="Province Slug Name: "
-      name="slugName"
-      value={slugName}
-      onChange={onChangeForm}
-      disabled={!slugCheckBox}
-      error={formErrors.slugName}
-    />
+    {watchCustomizeSlug &&
+      <RHFInput
+        label="Province Slug Name: "
+        name="slugName"
+      />
+    }
   </ModalModule>
 );
 
@@ -88,37 +72,43 @@ const ProvinceModal = () => {
     ({
       provinceReducer: {
         openModal,
-        modalFormSuccessMessage,
         formLoading,
         province,
-        errors
       }
     }) => ({
       openModal,
-      modalFormSuccessMessage,
       formLoading,
       province,
-      errors
     }),
     shallowEqual
   );
 
-  const [slugCheckBox, setSlugCheckBox] = useState(false)
+  const methods = useForm({
+    defaultValues: selector.province,
+    resolver: yupResolver(schema),
+  })
+
+  const { handleSubmit, watch, setValue, clearErrors } = methods
+  const watchCustomizeSlug = watch("customizeSlug"); // you can supply default value as second argument
+
+  useEffect(() => {
+    for (const key in selector.province) {
+      if (Object.hasOwnProperty.call(selector.province, key)) {
+        const element = selector.province[key];
+        setValue(key, element)
+      }
+    }
+    clearErrors()
+  }, [selector.province])
 
   const dispatch = useDispatch();
 
   const renderProps = {
     ...selector,
-    slugCheckBox,
-    onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
-    onChangeForm: (_, { name, value }) => {
-      if (!slugCheckBox && name === "name") {
-        dispatch(setProvince({ ...selector.province, [name]: value, slugName: makeSlug(value) }))
-      } else {
-        dispatch(setProvince({ ...selector.province, [name]: value }))
-      }
-    },
-    onPositive: () => dispatch(doSave(selector.province)),
+    methods,
+    handleSubmit,
+    watchCustomizeSlug,
+    onPositive: (data) => dispatch(doSave(data)),
     onClose: () => dispatch(closeModal())
   };
 

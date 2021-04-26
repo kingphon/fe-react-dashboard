@@ -1,43 +1,34 @@
-import React, { useState } from "react";
-import {
-  shallowEqual,
-  useDispatch,
-  useSelector
-} from "react-redux";
+import React, { useEffect } from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useForm, } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { schema } from "./yupSchema";
 
-import { makeSlug } from "../../../../../commons/utils";
-import CheckBox from "../../../../atoms/CheckBox";
-import ComboBox from "../../../../atoms/ComboBox";
+import RHFCheckBox from "../../../../atoms/RHFCheckBox";
+import RHFComboBox from "../../../../atoms/RHFComboBox";
 import FormGroup from "../../../../atoms/FormGroup";
-import Input from "../../../../atoms/Input";
-import ToggleActive from "../../../../atoms/ToggleActive";
+import RHFInput from "../../../../atoms/RHFInput";
+import RHFToggleActive from "../../../../atoms/RHFToggleActive";
 import ModalModule from "../../../../molecules/ModalModule";
 
 import {
   closeModal,
   doSave,
-  fetchAllDistrict, setWard
+  fetchAllDistrict
 } from '../../../../../redux/reducers/location/wardReducer';
 
 const Render = ({
   openModal,
   formLoading,
-  modalFormSuccessMessage,
-  slugCheckBox,
-  onChangeComboBox,
-  onClickCheckBox,
+  methods,
+  handleSubmit,
+  watchCustomizeSlug,
+  watchProvinceId,
   ward: {
-    id,
-    name,
-    slugName,
-    districtId,
-    status
+    id
   },
-  provinceId,
   provinceList,
   districtList,
-  errors: { formErrors },
-  onChangeForm,
   onPositive,
   onClose
 }) => (
@@ -45,72 +36,52 @@ const Render = ({
     title={id ? "Update Ward" : "Create Ward"}
     open={openModal}
     loading={formLoading}
-    modalSuccess={modalFormSuccessMessage}
     maxWidth="md"
-    onPositive={onPositive}
+    handleSubmit={handleSubmit(data => onPositive(data))}
     onClose={onClose}
+    methods={methods}
   >
     <FormGroup row>
       {id &&
-        <Input label="Ward Id: "
+        <RHFInput
+          label="Ward Id: "
           name="id"
           width="25%"
-          value={id}
-          onChange={onChangeForm}
           disabled={true}
-          error={formErrors.id} />
+        />
       }
-      <Input
-        required
-        label="Ward Name: "
+      <RHFInput
+        label="Ward Name: *"
         name="name"
-        width={id && "70%"}
-        value={name}
-        onChange={onChangeForm}
-        error={formErrors.name}
+        width={id ? "70%" : "100%"}
       />
     </FormGroup>
     <FormGroup row>
-      <CheckBox
+      <RHFCheckBox
+        name="customizeSlug"
         label="Customize Slug"
-        checked={slugCheckBox}
-        onClick={onClickCheckBox}
       />
-      <ToggleActive
-        checked={status}
-        onChange={onChangeForm}
-      />
+      <RHFToggleActive />
     </FormGroup>
-    <Input
-      required
-      label="Ward Slug Name: "
-      name="slugName"
-      value={slugName}
-      onChange={onChangeForm}
-      disabled={!slugCheckBox}
-      error={formErrors.slugName}
-    />
+    {watchCustomizeSlug &&
+      <RHFInput
+        label="Ward Slug Name: "
+        name="slugName"
+      />
+    }
     <FormGroup row>
-      <ComboBox
+      <RHFComboBox
         className="w-1/2 my-2 -mx-1"
-        required
-        label="Province Name"
+        label="Province Name: *"
         name="provinceId"
         selectList={provinceList}
-        value={provinceId}
-        onChange={onChangeComboBox}
-        error={formErrors.provinceId}
       />
-      <ComboBox
+      <RHFComboBox
         className="w-1/2 my-2 -mx-1"
-        required
-        disabled={!provinceId}
+        disabled={!watchProvinceId}
         label="District Name"
         name="districtId"
         selectList={districtList}
-        value={districtId}
-        onChange={onChangeComboBox}
-        error={formErrors.districtId}
       />
     </FormGroup>
   </ModalModule>
@@ -121,52 +92,57 @@ const WardModal = () => {
     ({
       wardReducer: {
         openModal,
-        modalFormSuccessMessage,
         formLoading,
         ward,
         provinceList,
         districtList,
-        errors
       }
     }) => ({
       openModal,
-      modalFormSuccessMessage,
       formLoading,
       ward,
       provinceList,
       districtList,
-      errors
     }),
     shallowEqual
   );
 
-  const [provinceId, setProvinceId] = useState("")
+  const methods = useForm({
+    defaultValues: selector.ward,
+    resolver: yupResolver(schema),
+  })
 
-  const [slugCheckBox, setSlugCheckBox] = useState(false)
+  const { handleSubmit, watch, setValue, clearErrors } = methods
+  const watchCustomizeSlug = watch("customizeSlug");
+  const watchProvinceId = watch("provinceId");
+
+  useEffect(() => {
+    for (const key in selector.ward) {
+      if (Object.hasOwnProperty.call(selector.ward, key)) {
+        const element = selector.ward[key];
+        setValue(key, element)
+      }
+    }
+    clearErrors()
+  }, [selector.ward])
+
+  useEffect(() => {
+    if (watchProvinceId) {
+      dispatch(fetchAllDistrict(watchProvinceId.value))
+    }
+    setValue("districtId", "")
+  }, [watchProvinceId])
 
   const dispatch = useDispatch();
 
   const renderProps = {
     ...selector,
-    provinceId,
-    slugCheckBox,
-    onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
-    onChangeComboBox: (event) => {
-      if (event.target.name === "provinceId") {
-        setProvinceId(event.target.value)
-        dispatch(fetchAllDistrict(event.target.value))
-      } else {
-        dispatch(setWard({ ...selector.ward, [event.target.name]: event.target.value }))
-      }
-    },
-    onChangeForm: (_, { name, value }) => {
-      if (!slugCheckBox && name === "name") {
-        dispatch(setWard({ ...selector.ward, [name]: value, slugName: makeSlug(value) }))
-      } else {
-        dispatch(setWard({ ...selector.ward, [name]: value }))
-      }
-    },
-    onPositive: () => dispatch(doSave(selector.ward)),
+    methods,
+    dispatch,
+    handleSubmit,
+    watchCustomizeSlug,
+    watchProvinceId,
+    onPositive: (data) => dispatch(doSave(data)),
     onClose: () => dispatch(closeModal())
   };
 

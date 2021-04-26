@@ -4,14 +4,13 @@ import {
   useSelector,
   shallowEqual
 } from 'react-redux'
-import HouseRoundedIcon from '@material-ui/icons/LocationCityRounded';
+import HouseRoundedIcon from '@material-ui/icons/HouseRounded';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Header from '../../../organisms/Header'
 import WardTable from '../../../organisms/Location/Ward/WardTable'
 import WardModal from '../../../organisms/Location/Ward/WardModal'
-import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
 
 import {
   fetchAll,
@@ -53,7 +52,6 @@ const Ward = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(resetSystemErrors())
     dispatch(fetchAll())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

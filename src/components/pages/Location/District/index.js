@@ -11,7 +11,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Header from '../../../organisms/Header'
 import DistrictTable from '../../../organisms/Location/District/DistrictTable'
 import DistrictModal from '../../../organisms/Location/District/DistrictModal'
-import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
 import {
   fetchAll,
   getCreateAction,
@@ -52,7 +51,6 @@ const District = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(resetSystemErrors())
     dispatch(fetchAll())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

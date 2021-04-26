@@ -9,10 +9,11 @@ export const schema = yup.object().shape({
   customizeSlug: yup.boolean(),
   slugName: yup
     .string()
+    // .required("Please choose province")0
     .matches(/^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$/, "Please enter a valid slug"),
-  provinceId: yup
+  districtId: yup
     .object()
-    .required("Please choose a province")
+    .required("Please choose a district")
     .nullable(),
   status: yup.boolean(),
 });

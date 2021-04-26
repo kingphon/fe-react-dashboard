@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useForm, } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schema } from "./yupSchema";
 
+import { schema } from "./yupSchema";
 import RHFCheckBox from "../../../../atoms/RHFCheckBox";
 import RHFComboBox from "../../../../atoms/RHFComboBox";
 import FormGroup from "../../../../atoms/FormGroup";
@@ -20,6 +20,8 @@ const Render = ({
   openModal,
   formLoading,
   methods,
+  watchCustomizeSlug,
+  handleSubmit,
   district: {
     id
   },
@@ -27,9 +29,6 @@ const Render = ({
   onPositive,
   onClose
 }) => {
-
-  const { handleSubmit, watch, getValues, setValues, reset, setValue, control } = methods
-  const watchCustomizeSlug = watch("customizeSlug"); // you can supply default value as second argument
 
   return (
     <ModalModule
@@ -97,19 +96,22 @@ const DistrictModal = () => {
     shallowEqual
   );
 
-  let methods = useForm({
+  const methods = useForm({
     defaultValues: selector.district,
     resolver: yupResolver(schema),
   })
+
+  const { handleSubmit, watch, setValue, clearErrors } = methods
+  const watchCustomizeSlug = watch("customizeSlug");
 
   useEffect(() => {
     for (const key in selector.district) {
       if (Object.hasOwnProperty.call(selector.district, key)) {
         const element = selector.district[key];
-        methods.setValue(key, element)
+        setValue(key, element)
       }
     }
-    methods.clearErrors()
+    clearErrors()
   }, [selector.district])
 
   const dispatch = useDispatch();
@@ -117,7 +119,8 @@ const DistrictModal = () => {
   const renderProps = {
     ...selector,
     methods,
-
+    watchCustomizeSlug,
+    handleSubmit,
     onPositive: (data) => dispatch(doSave(data)),
     onClose: () => dispatch(closeModal())
   };
