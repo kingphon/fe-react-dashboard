@@ -1,144 +1,129 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useForm, } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
 
-import { makeSlug } from "../../../../../commons/utils";
-import CheckBox from "../../../../atoms/CheckBox";
-import ComboBox from "../../../../atoms/ComboBox";
+import { schema } from "./yupSchema";
+import RHFCheckBox from "../../../../atoms/RHFCheckBox";
+import RHFComboBox from "../../../../atoms/RHFComboBox";
 import FormGroup from "../../../../atoms/FormGroup";
-import Input from "../../../../atoms/Input";
-import ToggleActive from "../../../../atoms/ToggleActive";
+import RHFInput from "../../../../atoms/RHFInput";
+import RHFToggleActive from "../../../../atoms/RHFToggleActive";
 import ModalModule from "../../../../molecules/ModalModule";
 
 import {
   closeModal,
   doSave,
-  setTypeGroup
 } from '../../../../../redux/reducers/classification/typeGroupReducer';
 
 const Render = ({
   openModal,
   formLoading,
-  modalFormSuccessMessage,
-  slugCheckBox,
-  onChangeComboBox,
-  onClickCheckBox,
+  methods,
+  watchCustomizeSlug,
+  handleSubmit,
   typeGroup: {
-    id,
-    name,
-    slugName,
-    categoryId,
-    status
+    id
   },
   categoryList,
-  errors: { formErrors },
-  onChangeForm,
   onPositive,
   onClose
-}) => (
-  <ModalModule
-    title={id ? "Update Type Group" : "Create Type Group"}
-    open={openModal}
-    loading={formLoading}
-    modalSuccess={modalFormSuccessMessage}
-    maxWidth="md"
-    onPositive={onPositive}
-    onClose={onClose}
-  >
-    <FormGroup row>
-      {id &&
-        <Input label="Type Group Id: "
-          name="id"
-          width="25%"
-          value={id}
-          onChange={onChangeForm}
-          disabled={true}
-          error={formErrors.id} />
+}) => {
+
+  return (
+    <ModalModule
+      title={id ? "Update Type Group" : "Create Type Group"}
+      open={openModal}
+      loading={formLoading}
+      maxWidth="md"
+      handleSubmit={handleSubmit(data => onPositive(data))}
+      onClose={onClose}
+      methods={methods}
+    >
+      <FormGroup row>
+        {id &&
+          <RHFInput
+            label="Type Group Id: "
+            name="id"
+            width="25%"
+            disabled={true}
+          />
+        }
+        <RHFInput
+          label="Type Group Name: *"
+          name="name"
+          width={id ? "70%" : "100%"}
+        />
+      </FormGroup>
+      <FormGroup row>
+        <RHFCheckBox
+          name="customizeSlug"
+          label="Customize Slug"
+        />
+        <RHFToggleActive />
+      </FormGroup>
+      {watchCustomizeSlug &&
+        <RHFInput
+          label="Type Group Slug Name: "
+          name="slugName"
+        />
       }
-      <Input
-        required
-        label="Type Group Name: "
-        name="name"
-        width={id && "70%"}
-        value={name}
-        onChange={onChangeForm}
-        error={formErrors.name}
+      <RHFComboBox
+        className="w-full my-2"
+        label="Category Name: *"
+        name="categoryId"
+        selectList={categoryList}
       />
-    </FormGroup>
-    <FormGroup row>
-      <CheckBox
-        label="Customize Slug"
-        checked={slugCheckBox}
-        onClick={onClickCheckBox}
-      />
-      <ToggleActive
-        checked={status}
-        onChange={onChangeForm}
-      />
-    </FormGroup>
-    <Input
-      required
-      label="Type Group Slug Name: "
-      name="slugName"
-      value={slugName}
-      onChange={onChangeForm}
-      disabled={!slugCheckBox}
-      error={formErrors.slugName}
-    />
-    <ComboBox
-      className="w-full my-2"
-      required
-      label="Category Name"
-      name="categoryId"
-      selectList={categoryList}
-      value={categoryId}
-      onChange={onChangeComboBox}
-      error={formErrors.categoryId}
-    />
-  </ModalModule>
-);
+    </ModalModule>
+  )
+};
 
 const TypeGroupModal = () => {
   const selector = useSelector(
     ({
       typeGroupReducer: {
         openModal,
-        modalFormSuccessMessage,
         formLoading,
         typeGroup,
         categoryList,
-        errors
       }
     }) => ({
       openModal,
-      modalFormSuccessMessage,
       formLoading,
       typeGroup,
       categoryList,
-      errors
     }),
     shallowEqual
   );
 
-  const [slugCheckBox, setSlugCheckBox] = useState(false)
+  const methods = useForm({
+    defaultValues: selector.typeGroup,
+    resolver: yupResolver(schema),
+  })
+
+  const { handleSubmit, watch, setValue, clearErrors } = methods
+  const watchCustomizeSlug = watch("customizeSlug");
+
+  useEffect(() => {
+    for (const key in selector.typeGroup) {
+      if (Object.hasOwnProperty.call(selector.typeGroup, key)) {
+        const element = selector.typeGroup[key];
+        setValue(key, element)
+      }
+    }
+    clearErrors()
+  }, [selector.typeGroup])
 
   const dispatch = useDispatch();
 
   const renderProps = {
     ...selector,
-    slugCheckBox,
-    onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
-    onChangeComboBox: (event) => dispatch(setTypeGroup({ ...selector.typeGroup, [event.target.name]: event.target.value })),
-    onChangeForm: (_, { name, value }) => {
-      if (!slugCheckBox && name === "name") {
-        dispatch(setTypeGroup({ ...selector.typeGroup, [name]: value, slugName: makeSlug(value) }))
-      } else {
-        dispatch(setTypeGroup({ ...selector.typeGroup, [name]: value }))
-      }
-    },
-    onPositive: () => dispatch(doSave(selector.typeGroup)),
+    methods,
+    watchCustomizeSlug,
+    handleSubmit,
+    onPositive: (data) => dispatch(doSave(data)),
     onClose: () => dispatch(closeModal())
   };
-
   return <Render {...renderProps} />;
 };
 

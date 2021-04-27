@@ -1,44 +1,34 @@
-import React, { useState } from "react";
-import {
-  shallowEqual,
-  useDispatch,
-  useSelector
-} from "react-redux";
+import React, { useEffect } from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useForm, } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { schema } from "./yupSchema";
 
-import { makeSlug } from "../../../../../commons/utils";
-import CheckBox from "../../../../atoms/CheckBox";
-import ComboBox from "../../../../atoms/ComboBox";
+import RHFCheckBox from "../../../../atoms/RHFCheckBox";
+import RHFComboBox from "../../../../atoms/RHFComboBox";
 import FormGroup from "../../../../atoms/FormGroup";
-import Input from "../../../../atoms/Input";
-import ToggleActive from "../../../../atoms/ToggleActive";
+import RHFInput from "../../../../atoms/RHFInput";
+import RHFToggleActive from "../../../../atoms/RHFToggleActive";
 import ModalModule from "../../../../molecules/ModalModule";
 
 import {
   closeModal,
   doSave,
-  fetchAllTypeGroup,
-  setTypeItem
+  fetchAllTypeGroup
 } from '../../../../../redux/reducers/classification/typeReducer';
 
 const Render = ({
   openModal,
   formLoading,
-  modalFormSuccessMessage,
-  slugCheckBox,
-  onChangeComboBox,
-  onClickCheckBox,
-  typeItem: {
-    id,
-    name,
-    slugName,
-    typeGroupId,
-    status
+  methods,
+  handleSubmit,
+  watchCustomizeSlug,
+  watchCategoryId,
+  type: {
+    id
   },
-  categoryId,
   categoryList,
   typeGroupList,
-  errors: { formErrors },
-  onChangeForm,
   onPositive,
   onClose
 }) => (
@@ -46,72 +36,52 @@ const Render = ({
     title={id ? "Update Type" : "Create Type"}
     open={openModal}
     loading={formLoading}
-    modalSuccess={modalFormSuccessMessage}
     maxWidth="md"
-    onPositive={onPositive}
+    handleSubmit={handleSubmit(data => onPositive(data))}
     onClose={onClose}
+    methods={methods}
   >
     <FormGroup row>
       {id &&
-        <Input label="Type Id: "
+        <RHFInput
+          label="Type Id: "
           name="id"
           width="25%"
-          value={id}
-          onChange={onChangeForm}
           disabled={true}
-          error={formErrors.id} />
+        />
       }
-      <Input
-        required
-        label="Type Name: "
+      <RHFInput
+        label="Type Name: *"
         name="name"
-        width={id && "70%"}
-        value={name}
-        onChange={onChangeForm}
-        error={formErrors.name}
+        width={id ? "70%" : "100%"}
       />
     </FormGroup>
     <FormGroup row>
-      <CheckBox
+      <RHFCheckBox
+        name="customizeSlug"
         label="Customize Slug"
-        checked={slugCheckBox}
-        onClick={onClickCheckBox}
       />
-      <ToggleActive
-        checked={status}
-        onChange={onChangeForm}
-      />
+      <RHFToggleActive />
     </FormGroup>
-    <Input
-      required
-      label="Type Slug Name: "
-      name="slugName"
-      value={slugName}
-      onChange={onChangeForm}
-      disabled={!slugCheckBox}
-      error={formErrors.slugName}
-    />
+    {watchCustomizeSlug &&
+      <RHFInput
+        label="Type Slug Name: "
+        name="slugName"
+      />
+    }
     <FormGroup row>
-      <ComboBox
+      <RHFComboBox
         className="w-1/2 my-2 -mx-1"
-        required
-        label="Category Name"
+        label="Category Name: *"
         name="categoryId"
         selectList={categoryList}
-        value={categoryId}
-        onChange={onChangeComboBox}
-        error={formErrors.categoryId}
       />
-      <ComboBox
+      <RHFComboBox
         className="w-1/2 my-2 -mx-1"
-        required
-        disabled={!categoryId}
+        disabled={!watchCategoryId}
         label="Type Group Name"
         name="typeGroupId"
         selectList={typeGroupList}
-        value={typeGroupId}
-        onChange={onChangeComboBox}
-        error={formErrors.typeGroupId}
       />
     </FormGroup>
   </ModalModule>
@@ -122,52 +92,57 @@ const TypeModal = () => {
     ({
       typeReducer: {
         openModal,
-        modalFormSuccessMessage,
         formLoading,
-        typeItem,
+        type,
         categoryList,
         typeGroupList,
-        errors
       }
     }) => ({
       openModal,
-      modalFormSuccessMessage,
       formLoading,
-      typeItem,
+      type,
       categoryList,
       typeGroupList,
-      errors
     }),
     shallowEqual
   );
 
-  const [categoryId, setCategoryId] = useState("")
+  const methods = useForm({
+    defaultValues: selector.type,
+    resolver: yupResolver(schema),
+  })
 
-  const [slugCheckBox, setSlugCheckBox] = useState(false)
+  const { handleSubmit, watch, setValue, clearErrors } = methods
+  const watchCustomizeSlug = watch("customizeSlug");
+  const watchCategoryId = watch("categoryId");
+
+  useEffect(() => {
+    for (const key in selector.type) {
+      if (Object.hasOwnProperty.call(selector.type, key)) {
+        const element = selector.type[key];
+        setValue(key, element)
+      }
+    }
+    clearErrors()
+  }, [selector.type])
+
+  useEffect(() => {
+    if (watchCategoryId) {
+      dispatch(fetchAllTypeGroup(watchCategoryId.value))
+    }
+    setValue("typeGroupId", "")
+  }, [watchCategoryId])
 
   const dispatch = useDispatch();
 
   const renderProps = {
     ...selector,
-    categoryId,
-    slugCheckBox,
-    onClickCheckBox: () => setSlugCheckBox(!slugCheckBox),
-    onChangeComboBox: (event) => {
-      if (event.target.name === "categoryId") {
-        setCategoryId(event.target.value)
-        dispatch(fetchAllTypeGroup(event.target.value))
-      } else {
-        dispatch(setTypeItem({ ...selector.typeItem, [event.target.name]: event.target.value }))
-      }
-    },
-    onChangeForm: (_, { name, value }) => {
-      if (!slugCheckBox && name === "name") {
-        dispatch(setTypeItem({ ...selector.typeItem, [name]: value, slugName: makeSlug(value) }))
-      } else {
-        dispatch(setTypeItem({ ...selector.typeItem, [name]: value }))
-      }
-    },
-    onPositive: () => dispatch(doSave(selector.typeItem)),
+    methods,
+    dispatch,
+    handleSubmit,
+    watchCustomizeSlug,
+    watchCategoryId,
+    onPositive: (data) => dispatch(doSave(data)),
     onClose: () => dispatch(closeModal())
   };
 

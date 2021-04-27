@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Header from '../../../organisms/Header'
 import TypeTable from '../../../organisms/Classification/Type/TypeTable'
 import TypeModal from '../../../organisms/Classification/Type/TypeModal'
-import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
+
 
 import {
   fetchAll,
@@ -53,7 +53,7 @@ const Type = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(resetSystemErrors())
+    
     dispatch(fetchAll())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

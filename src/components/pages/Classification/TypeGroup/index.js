@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Header from '../../../organisms/Header'
 import TypeGroupTable from '../../../organisms/Classification/TypeGroup/TypeGroupTable'
 import TypeGroupModal from '../../../organisms/Classification/TypeGroup/TypeGroupModal'
-import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
+
 import {
   fetchAll,
   getCreateAction,
@@ -52,7 +52,7 @@ const TypeGroup = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(resetSystemErrors())
+    
     dispatch(fetchAll())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

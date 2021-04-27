@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Header from '../../../organisms/Header'
 import CategoryTable from '../../../organisms/Classification/Category/CategoryTable'
 import CategoryModal from '../../../organisms/Classification/Category/CategoryModal'
-import { resetSystemErrors } from '../../../../redux/reducers/rootReducer';
+
 import {
   fetchAll,
   getCreateAction,
@@ -52,7 +52,6 @@ const Category = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(resetSystemErrors())
     dispatch(fetchAll())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

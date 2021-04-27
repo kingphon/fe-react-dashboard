@@ -5,9 +5,9 @@ import Main from './components/templates/layouts/Main';
 import District from './components/pages/Location/District'
 import Province from './components/pages/Location/Province'
 import Ward from './components/pages/Location/Ward'
-// import Category from './components/pages/Classification/Category'
-// import TypeGroup from './components/pages/Classification/TypeGroup'
-// import Type from './components/pages/Classification/Type'
+import Category from './components/pages/Classification/Category'
+import TypeGroup from './components/pages/Classification/TypeGroup'
+import Type from './components/pages/Classification/Type'
 import Login from './components/pages/Authentication/Login'
 import Test from './components/pages/Authentication/Test'
 import AuthRoute from './routes/AuthRoute'
@@ -44,7 +44,7 @@ class App extends React.Component {
             <Ward />
           </Main>
         </AuthRoute>
-        {/* <AuthRoute path="/category">
+        <AuthRoute path="/category">
           <Main>
             <Category />
           </Main>
@@ -58,7 +58,7 @@ class App extends React.Component {
           <Main>
             <Type />
           </Main>
-        </AuthRoute> */}
+        </AuthRoute>
       </Switch>
     );
   }
