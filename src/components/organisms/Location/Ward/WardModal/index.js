@@ -124,6 +124,7 @@ const WardModal = () => {
       }
     }
     clearErrors()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selector.ward])
 
   useEffect(() => {
@@ -131,6 +132,7 @@ const WardModal = () => {
       dispatch(fetchAllDistrict(watchProvinceId.value))
     }
     setValue("districtId", "")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchProvinceId])
 
   const dispatch = useDispatch();
@@ -138,7 +140,6 @@ const WardModal = () => {
   const renderProps = {
     ...selector,
     methods,
-    dispatch,
     handleSubmit,
     watchCustomizeSlug,
     watchProvinceId,

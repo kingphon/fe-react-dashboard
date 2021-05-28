@@ -31,7 +31,7 @@ export const initialState = {
   },
   typeList: [
   ],
-  type: defaultValues,
+  typeItem: defaultValues,
   categoryList: [],
   typeGroupList: [],
   searchKeywords: "",
@@ -72,9 +72,9 @@ export const prepareDataTypeGroup = data => ({
 
 const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
 
-export const setType = type => ({ type: SET_TYPE, type });
+export const setType = typeItem => ({ type: SET_TYPE, typeItem });
 
-export const setDefaultType = type => ({ type: SET_DEFAULT_TYPE, type });
+export const setDefaultType = typeItem => ({ type: SET_DEFAULT_TYPE, typeItem });
 
 export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
 
@@ -88,7 +88,7 @@ export const fetchAllCategory = () => async dispatch => {
 
 export const fetchAllTypeGroup = (categoryId) => async dispatch => {
   return axios
-    .get(`${REDUX_API_URL}/typeGroups-creation/${categoryId}`, { timeout: 5000 })
+    .get(`${REDUX_API_URL}/type-groups-creation/${categoryId}`, { timeout: 5000 })
     .then(response => dispatch(prepareDataTypeGroup(response.data)))
     .catch(error => toast.error(error))
 };
@@ -104,7 +104,6 @@ export const fetchAll = () => async dispatch => {
 
 export const doSave = type => async dispatch => {
   dispatch(formLoading(true));
-  console.log(type)
   const {
     id,
     name,
@@ -143,7 +142,7 @@ export const getUpdateAction = typeId => async dispatch => {
     .then(response => {
       dispatch({
         type: SET_TYPE,
-        type: response.data,
+        typeItem: response.data,
       });
       dispatch(setOpenModal(true));
     })
@@ -251,6 +250,7 @@ export default function (state = initialState, action) {
           categoryList: action.categoryList,
         };
       case PREPARE_DATA_TYPE_GROUP:
+        console.log(action.typeGroupList)
         return {
           ...state,
           typeGroupList: action.typeGroupList,
@@ -263,18 +263,18 @@ export default function (state = initialState, action) {
       case SET_TYPE:
         return {
           ...state,
-          type: {
-            ...action.type,
-            status: action.type.status === ACTIVE ? true : false,
+          typeItem: {
+            ...action.typeItem,
+            status: action.typeItem.status === ACTIVE ? true : false,
             customizeSlug: false,
-            categoryId: state.categoryList.find(option => option.value === action.type.categoryId),
-            typeGroupId: state.typeGroupList.find(option => option.value === action.type.typeGroupId)
+            categoryId: state.categoryList.find(option => option.value === action.typeItem.categoryId),
+            typeGroupId: action.typeItem.typeGroupId
           },
         };
       case SET_DEFAULT_TYPE:
         return {
           ...state,
-          type: action.type,
+          typeItem: action.typeItem,
         };
       case SET_SEARCH_KEYWORDS:
         return {

@@ -24,7 +24,7 @@ const Render = ({
   handleSubmit,
   watchCustomizeSlug,
   watchCategoryId,
-  type: {
+  typeItem: {
     id
   },
   categoryList,
@@ -93,14 +93,14 @@ const TypeModal = () => {
       typeReducer: {
         openModal,
         formLoading,
-        type,
+        typeItem,
         categoryList,
         typeGroupList,
       }
     }) => ({
       openModal,
       formLoading,
-      type,
+      typeItem,
       categoryList,
       typeGroupList,
     }),
@@ -108,7 +108,7 @@ const TypeModal = () => {
   );
 
   const methods = useForm({
-    defaultValues: selector.type,
+    defaultValues: selector.typeItem,
     resolver: yupResolver(schema),
   })
 
@@ -117,20 +117,23 @@ const TypeModal = () => {
   const watchCategoryId = watch("categoryId");
 
   useEffect(() => {
-    for (const key in selector.type) {
-      if (Object.hasOwnProperty.call(selector.type, key)) {
-        const element = selector.type[key];
+    for (const key in selector.typeItem) {
+      if (Object.hasOwnProperty.call(selector.typeItem, key)) {
+        const element = selector.typeItem[key];
         setValue(key, element)
       }
     }
+    console.log(selector.typeItem)
     clearErrors()
-  }, [selector.type])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selector.typeItem])
 
   useEffect(() => {
     if (watchCategoryId) {
       dispatch(fetchAllTypeGroup(watchCategoryId.value))
     }
     setValue("typeGroupId", "")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchCategoryId])
 
   const dispatch = useDispatch();

@@ -13,55 +13,60 @@ const HorizontalSideBar = () => {
   const [menu, setMenu] = useState(
     [
       {
-        name: "Vị trí",
+        name: "Home",
+        icon: HouseRoundedIcon,
+        path: "/home"
+      },
+      {
+        name: "Location",
         beforeIcon: LocationOnRoundedIcon,
         afterIcon: ExpandMoreRoundedIcon,
         subMenu: {
           open: false,
           item: [{
-            name: "Tỉnh",
+            name: "Province",
             path: "/province",
             icon: BusinessRoundedIcon
           },
           {
-            name: "Huyện",
+            name: "District",
             path: "/district",
             icon: LocationCityRoundedIcon
           },
           {
-            name: "Xã",
+            name: "Ward",
             path: "/ward",
             icon: HouseRoundedIcon
           }]
         }
       },
       {
-        name: "Phân Loại",
+        name: "Classification",
         beforeIcon: CategoryRoundedIcon,
         afterIcon: ExpandMoreRoundedIcon,
         subMenu: {
           open: false,
           item: [{
-            name: "Danh mục",
+            name: "Category",
             path: "/category",
             icon: CategoryRoundedIcon
           },
           {
-            name: "Nhóm Loại",
+            name: "Type Group",
             path: "/type-group",
             icon: CategoryRoundedIcon
           },
           {
-            name: "Loại",
+            name: "Type",
             path: "/type",
             icon: CategoryRoundedIcon
           }]
-        } 
+        }
       },
       {
-        name: "Tài khoản",
+        name: "Profile",
         icon: AccountCircleRoundedIcon,
-        path: "/account"
+        path: "/profile"
       }
     ])
 
@@ -72,16 +77,47 @@ const HorizontalSideBar = () => {
   }
   return (
     <>
-      <div className="rounded bg-blue-300 text-white w-64 absolute h-full">
-        <div className="rounded text-center p-4 border-b h-16 w-full">
-          <img className="w-full h-full object-cover object-center" src="/images/logo.png" alt="logo" />
+      <div
+        className="
+        bg-blue-300 
+        text-white 
+        w-64 
+        absolute 
+        h-full"
+      >
+        <div
+          className="
+          text-center 
+          p-4 
+          border-b 
+          h-16 
+          w-full"
+        >
+          <img
+            className="
+            w-full 
+            h-full 
+            object-cover 
+            object-center"
+            src="/images/logo.png"
+            alt="logo" />
         </div>
         <div>
           {menu.map((item, index) =>
             item.subMenu ?
               (<div key={index}>
                 <div
-                  className="rounded m-3 p-2 px-6 cursor-pointer text-center h-10 flex items-center justify-between hover:bg-blue-200"
+                  className="
+                  my-3 
+                  p-2 
+                  px-6 
+                  cursor-pointer 
+                  text-center 
+                  h-10 
+                  flex 
+                  items-center 
+                  justify-between 
+                  hover:bg-blue-200"
                   onClick={() => handleOpenSubMenu(index)}
                 >
                   <div className="flex">
@@ -93,7 +129,23 @@ const HorizontalSideBar = () => {
                 {item.subMenu.open &&
                   (<div className="text-center">
                     {item.subMenu.item.map((subItem, subIndex) => (
-                      <NavLink className="rounded border-b m-3 ml-8 p-2 text-center h-10 flex items-center justify-center hover:bg-blue-200" activeClassName="bg-blue-200" key={subIndex} to={subItem.path}>
+                      <NavLink
+                        className="
+                        border-b 
+                        my-3 
+                        ml-8 
+                        p-2 
+                        text-center 
+                        h-10 
+                        flex 
+                        items-center 
+                        justify-center 
+                        hover:bg-blue-200"
+                        activeClassName="
+                        border-r-2 
+                        border-white"
+                        key={subIndex}
+                        to={subItem.path}>
                         <subItem.icon />
                             &nbsp;
                         {subItem.name}
@@ -103,7 +155,20 @@ const HorizontalSideBar = () => {
 
               </div>)
               :
-              (<NavLink className="rounded m-3 p-2 px-6 h-10 flex items-center hover:bg-blue-200" activeClassName="bg-blue-200" key={index} to={item.path}>
+              (<NavLink
+                className="
+                my-3 
+                p-2 
+                px-6 
+                h-10 
+                flex 
+                items-center 
+                hover:bg-blue-200"
+                activeClassName="
+                border-r-2 
+                border-white"
+                key={index}
+                to={item.path}>
                 <item.icon className="mr-2" />
                 {item.name}
               </NavLink>)

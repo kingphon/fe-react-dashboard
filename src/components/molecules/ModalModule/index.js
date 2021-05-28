@@ -7,7 +7,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import Button from '../../atoms/Button';
 import { Close, Check } from '@material-ui/icons';
-import { Backdrop, CircularProgress } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -75,12 +74,6 @@ export default function ModalModule({
         </FormProvider>
         {modalSuccess && <ModalSuccess message={modalSuccess} />}
         {modalError && <ModalError message={modalError} />}
-        <Backdrop
-          className="absolute z-50 opacity-30 text-white bg-black bg-opacity-10"
-          open={loading || onLoaded}
-        >
-          {onLoaded && <CircularProgress />}
-        </Backdrop>
       </DialogContent>
     </Dialog>
   );

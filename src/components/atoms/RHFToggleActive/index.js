@@ -1,13 +1,11 @@
 import React from 'react'
 import { useFormContext, Controller } from "react-hook-form";
 import { Switch, FormGroup, FormControlLabel } from '@material-ui/core';
-import { ACTIVE, HIDDEN } from '../../../constants/entities';
 
 const RHFToggleActive = ({
   labelPlacement = "start",
   color = "primary",
   name = 'status',
-  // defaultValue = true,
   ...rest
 }) => {
 
@@ -17,7 +15,6 @@ const RHFToggleActive = ({
     <Controller
       name={name}
       control={control}
-      // defaultValue={defaultValue}
       render={({ field: { onChange, value } }) => (
         <FormGroup>
           <FormControlLabel

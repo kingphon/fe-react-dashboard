@@ -99,6 +99,7 @@ const ProvinceModal = () => {
       }
     }
     clearErrors()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selector.province])
 
   const dispatch = useDispatch();

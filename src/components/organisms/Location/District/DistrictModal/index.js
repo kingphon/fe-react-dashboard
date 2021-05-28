@@ -112,6 +112,7 @@ const DistrictModal = () => {
       }
     }
     clearErrors()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selector.district])
 
   const dispatch = useDispatch();

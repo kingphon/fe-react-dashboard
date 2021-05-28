@@ -112,6 +112,7 @@ const TypeGroupModal = () => {
       }
     }
     clearErrors()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selector.typeGroup])
 
   const dispatch = useDispatch();

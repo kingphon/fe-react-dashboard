@@ -139,8 +139,9 @@ export const getUpdateAction = wardId => async dispatch => {
   dispatch(listLoading(true));
   dispatch(fetchAllProvince());
   axios
-    .get(`${PATH_API}/${wardId}`, { timeout: 5000 })
-    .then(response => {
+  .get(`${PATH_API}/${wardId}`, { timeout: 5000 })
+  .then(response => {
+      dispatch(fetchAllDistrict(response.data.provinceId));
       dispatch({
         type: SET_WARD,
         ward: response.data,

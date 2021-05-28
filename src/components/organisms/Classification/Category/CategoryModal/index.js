@@ -99,6 +99,7 @@ const CategoryModal = () => {
       }
     }
     clearErrors()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selector.category])
 
   const dispatch = useDispatch();

@@ -54,7 +54,8 @@ const Render = ({
                 InputProps={{
                   endAdornment:
                     <IconButton
-                      aria-label="toggle password visibility"
+                      className="p-0"
+                      // aria-label="toggle password visibility"
                       onClick={handleClickShowPassword}
                       onMouseDown={handleMouseDownPassword}
                     >
@@ -101,7 +102,7 @@ const Login = () => {
 
   const history = useHistory()
   const location = useLocation()
-  const { from } = location.state || { from: { pathname: "/" } }
+  const { from } = location.state || { from: { pathname: "/home" } }
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);

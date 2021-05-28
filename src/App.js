@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, Redirect } from 'react-router-dom'
 
 import Main from './components/templates/layouts/Main';
 import District from './components/pages/Location/District'
@@ -9,24 +9,29 @@ import Category from './components/pages/Classification/Category'
 import TypeGroup from './components/pages/Classification/TypeGroup'
 import Type from './components/pages/Classification/Type'
 import Login from './components/pages/Authentication/Login'
-import Test from './components/pages/Authentication/Test'
+import MainPage from './components/pages/MainPage'
+import Profile from './components/pages/Profile'
+// import Test from './components/pages/Authentication/Test'
 import AuthRoute from './routes/AuthRoute'
-
+/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
 class App extends React.Component {
   render() {
     return (
       <Switch>
-        <AuthRoute exact path="/">
+        <Route exact path="/">
+          <Redirect to="/home" />
+        </Route>
+        <AuthRoute path="/home">
           <Main>
-            <h2>Main</h2>
+            <MainPage />
           </Main>
         </AuthRoute>
         <Route path="/login">
           <Login />
         </Route>
-        <AuthRoute path="/account">
+        <AuthRoute path="/profile">
           <Main>
-            <Test />
+            <Profile />
           </Main>
         </AuthRoute>
         <AuthRoute path="/district">
