@@ -20,8 +20,8 @@ export const initialState = {
   districtList: [],
   wardList: [],
 }
-const PATH_API_LOGIN = 'http://localhost:5000/authenticate'
-const PATH_API_LOGOUT = 'http://localhost:5000/logout'
+const PATH_API_LOGIN = 'http://localhost:5000/user/authenticate'
+const PATH_API_LOGOUT = 'http://localhost:5000/user/logout'
 const createAction = action => `SYSTEM_${action}`
 
 const PREPARE_DATA_PROVINCE = createAction("PREPARE_DATA_PROVINCE");
@@ -51,27 +51,27 @@ const prepareDataWard = data => ({
 
 export const setLoginForm = loginForm => ({ type: SET_LOGIN_FORM, loginForm })
 
-export const setProfile = profile => ({ type: SET_PROFILE, profile })
+export const setProfile = data => ({ type: SET_PROFILE, data })
 
 const setFormLoading = loading => ({ type: SET_FORM_LOADING, loading })
 
 export const fetchAllProvince = () => async dispatch => {
   return axios
-    .get(`${REDUX_API_URL}/provinces-creation`, { timeout: 5000 })
+    .get(`${REDUX_API_URL}/location/provinces-creation`, { timeout: 5000 })
     .then(response => dispatch(prepareDataProvince(response.data)))
     .catch(error => toast.error(error))
 };
 
 export const fetchAllDistrict = (provinceId) => async dispatch => {
   return axios
-    .get(`${REDUX_API_URL}/districts-creation/${provinceId}`, { timeout: 5000 })
+    .get(`${REDUX_API_URL}/location/districts-creation/${provinceId}`, { timeout: 5000 })
     .then(response => dispatch(prepareDataDistrict(response.data)))
     .catch(error => toast.error(error))
 };
 
 export const fetchAllWard = (districtId) => async dispatch => {
   return axios
-    .get(`${REDUX_API_URL}/wards-creation/${districtId}`, { timeout: 5000 })
+    .get(`${REDUX_API_URL}/location/wards-creation/${districtId}`, { timeout: 5000 })
     .then(response => dispatch(prepareDataWard(response.data)))
     .catch(error => toast.error(error))
 };
@@ -79,11 +79,11 @@ export const fetchAllWard = (districtId) => async dispatch => {
 export const getProfile = () => async dispatch => {
   dispatch(fetchAllProvince())
   return axios
-    .get(`${REDUX_API_URL}/profile`, { timeout: 5000 })
+    .get(`${REDUX_API_URL}/user/profile`, { timeout: 5000 })
     .then(response => {
-      dispatch(setProfile(response.data[0]))
-      dispatch(fetchAllDistrict(response.data[0].provinceId))
-      dispatch(fetchAllWard(response.data[0].districtId))
+      dispatch(setProfile(response.data))
+      dispatch(fetchAllDistrict(response.data.province.provinceId))
+      dispatch(fetchAllWard(response.data.district.districtId))
     })
     .catch(error => toast.error(error))
 }
@@ -99,12 +99,30 @@ export const changeAvatar = (avatar) => async dispatch => {
     })
     .then(response => {
       dispatch(setProfile(response.data[0]))
+      toast.success('Changed Avatar')
     })
-    .catch(error => toast.error(error))
+    .catch(error => toast.error(error.response.data.message))
+}
+
+export const changePassword = (passwords) => async dispatch => {
+  const params = JSON.stringify(passwords);
+  return axios
+    .post(`${REDUX_API_URL}/profile/password`, params, {
+      timeout: 5000,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => {
+      dispatch(setProfile(response.data[0]))
+      toast.success('Changed Password')
+    })
+    .catch(error => toast.error(error.response.data.message))
 }
 
 export const doLogin = (params, callback) => dispatch => {
   dispatch(setFormLoading(true))
+  console.log(params)
 
   return axios.post(PATH_API_LOGIN, params, {
     headers: {
@@ -123,7 +141,7 @@ export const doLogin = (params, callback) => dispatch => {
 }
 
 export const doLogout = callback => dispatch => {
-  return axios.post(PATH_API_LOGOUT, {
+  return axios.get(PATH_API_LOGOUT, {
     headers: {
       'Content-Type': 'application/json'
     }
@@ -160,7 +178,6 @@ export default function (state = initialState, action) {
           }
         };
       case PREPARE_DATA_WARD:
-        console.log(action.wardList)
         return {
           ...state,
           wardList: action.wardList,
@@ -170,15 +187,18 @@ export default function (state = initialState, action) {
           }
         };
       case SET_PROFILE: {
-        console.log(action.profile)
         return {
           ...state,
           profile: {
-            ...action.profile,
-            createDate: moment(new Date(action.profile.createDate)).format('YYYY-MM-DD hh:mm:ss'),
-            updateDate: moment(new Date(action.profile.updateDate)).format('YYYY-MM-DD hh:mm:ss'),
-            provinceId: state.provinceList.find(option => option.value === action.profile.provinceId),
-            // districtId: state.districtList.find(option => option.value === action.profile.districtId),
+            ...action.data.profile,
+            createDate: moment(new Date(action.data.profile.createDate)).format('YYYY-MM-DD hh:mm:ss'),
+            updateDate: moment(new Date(action.data.profile.updateDate)).format('YYYY-MM-DD hh:mm:ss'),
+            provinceName: action.data.province.provinceName,
+            districtName: action.data.district.districtName,
+            wardName: action.data.ward.wardName,
+            provinceId: state.provinceList.find(option => option.value === action.data.province.provinceId),
+            districtId: action.data.district.districtId,
+            wardId: action.data.ward.wardId,
           }
         }
       }

@@ -8,16 +8,9 @@ import { makeSlug } from "../../../commons/utils";
 
 const prefix = "PROVINCE_";
 // API
-const PATH_API = `${REDUX_API_URL}/provinces`;
+const PATH_API = `${REDUX_API_URL}/location/provinces`;
 const createAction = action => `${prefix}${action}`;
 
-const defaultValues = {
-  id: null,
-  name: "",
-  customizeSlug: false,
-  slugName: "",
-  status: true
-}
 
 export const initialState = {
   loading: true,
@@ -29,7 +22,13 @@ export const initialState = {
   },
   provinceList: [
   ],
-  province: defaultValues,
+  province: {
+    id: null,
+    name: "",
+    customizeSlug: false,
+    slugName: "",
+    status: true
+  },
   searchKeywords: "",
 };
 
@@ -58,7 +57,7 @@ const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
 
 export const setProvince = province => ({ type: SET_PROVINCE, province });
 
-export const setDefaultProvince = province => ({ type: SET_DEFAULT_PROVINCE, province });
+export const setDefaultProvince = () => ({ type: SET_DEFAULT_PROVINCE });
 
 export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
 
@@ -84,9 +83,10 @@ export const doSave = province => async dispatch => {
   } = province;
   const params = {
     name,
-    slugName: customizeSlug ? slugName : makeSlug(name),
+    slug_name: customizeSlug ? slugName : makeSlug(name),
     status: status ? ACTIVE : HIDDEN,
   };
+  console.log(params)
   if (!id) {
     dispatch(doCreate(params));
   } else {
@@ -129,7 +129,7 @@ const doCreate = province => async dispatch => {
     .then(response => {
       dispatch(prepareData(response.data));
       toast.success("Province is created successfully!!")
-      dispatch(setDefaultProvince(initialState.province));
+      dispatch(setDefaultProvince());
     })
     .catch(error => {
       toast.error(error)
@@ -139,6 +139,7 @@ const doCreate = province => async dispatch => {
 
 const doUpdate = province => async dispatch => {
   const params = JSON.stringify(province);
+  console.log(params)
   return axios
     .put(`${PATH_API}/${province.id}`, params, {
       timeout: 5000,
@@ -149,6 +150,7 @@ const doUpdate = province => async dispatch => {
     .then(response => {
       dispatch(prepareData(response.data));
       toast.success("Province is update successfully!!");
+      dispatch(setDefaultProvince());
       dispatch(closeModal())
     })
     .catch(error => toast.error(error))
@@ -165,7 +167,7 @@ export const doDelete = provinceId => async dispatch => {
           .delete(`${PATH_API}/${provinceId}`)
           .then(response => {
             dispatch(prepareData(response.data));
-            toast.success(`Delete Province #${provinceId} success!!`);
+            toast.success(`Delete Province success!!`);
           })
           .catch(error => toast.error(error))
           .finally(() => dispatch(listLoading(false))) :
@@ -178,7 +180,7 @@ export const doDelete = provinceId => async dispatch => {
           })
           .then(response => {
             dispatch(prepareData(response.data));
-            toast.success(`Delete Province #${provinceId} success!!`)
+            toast.success(`Delete Provinces success!!`)
           })
           .catch(error => {
             toast.error(error)
@@ -227,7 +229,13 @@ export default function (state = initialState, action) {
       case SET_DEFAULT_PROVINCE:
         return {
           ...state,
-          province: action.province,
+          province: {
+            id: null,
+            name: "",
+            customizeSlug: false,
+            slugName: "",
+            status: true
+          },
         };
       case SET_SEARCH_KEYWORDS:
         return {
@@ -238,7 +246,13 @@ export default function (state = initialState, action) {
         return {
           ...state,
           openModal: false,
-          province: defaultValues,
+          province: {
+            id: null,
+            name: "",
+            customizeSlug: false,
+            slugName: "",
+            status: true
+          },
           formLoading: initialState.formLoading,
         };
       default:

@@ -17,7 +17,8 @@ import RHFComboBox from "../../../atoms/RHFComboBox";
 import ProfileFormEntity from "../../../molecules/ProfileFormEntity";
 import Button from '../../../atoms/Button';
 import { schema } from "./yupSchema";
-
+import { changePassword } from '../../../../redux/reducers/rootReducer'
+// eslint-disable-next-line
 const format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
 
 const Render = ({
@@ -29,7 +30,7 @@ const Render = ({
   onEdit,
   showPassword,
   watchNewPassword,
-  checkPassword,
+  onChangePassword,
   handleClickShowPassword,
   handleMouseDownPassword,
   onClickEdit,
@@ -43,6 +44,7 @@ const Render = ({
     wardName
   }
 }) => (
+  /* eslint-disable */
   <div className="w-full p-8 border-l-2 border-gray-300">
     <h1 className="font-bold text-2xl border-b-2 mb-4 border-gray-300 pb-8">Update Profile</h1>
     <div style={{ width: "750px" }}>
@@ -205,7 +207,7 @@ const Render = ({
         }
         {onEdit.password ?
           (
-            <form className='p-3 m-3 bg-gray-200' onSubmit={handleSubmit(data => console.log(data))}>
+            <form className='p-3 m-3 bg-gray-200' onSubmit={handleSubmit(data => onChangePassword(data))}>
               <span className='p-2'>Name</span>
               <div className=' flex flex-col items-center'>
                 <RHFInput
@@ -313,6 +315,7 @@ const Render = ({
       </FormProvider>
     </div>
   </div>
+  /* eslint-enable */
 )
 
 const ProfileForm = ({ data }) => {
@@ -346,13 +349,6 @@ const ProfileForm = ({ data }) => {
   })
 
   const [showPassword, setShowPassword] = useState(false)
-  const [checkPassword, setCheckPassword] = useState({
-    length: false,
-    number: false,
-    upperCase: false,
-    lowerCase: false,
-    specialCase: false
-  })
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -365,7 +361,6 @@ const ProfileForm = ({ data }) => {
 
   const { handleSubmit, setValue, clearErrors, watch } = methods
   const watchNewPassword = watch("newPassword");
-  console.log(watchNewPassword)
 
   useEffect(() => {
     for (const key in data) {
@@ -375,6 +370,8 @@ const ProfileForm = ({ data }) => {
       }
     }
     setValue("newPassword", "")
+    setValue("currentPassword", "")
+    setValue("reTypeNewPassword", "")
     setShowData({
       name: `${data.firstName} ${data.lastName}`,
       phone: data.phone,
@@ -388,7 +385,7 @@ const ProfileForm = ({ data }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const renderProps = {
     ...selector,
@@ -396,7 +393,6 @@ const ProfileForm = ({ data }) => {
     onEdit,
     showPassword,
     watchNewPassword,
-    checkPassword,
     handleClickShowPassword,
     handleMouseDownPassword,
     onClickEdit: (data) => {
@@ -411,7 +407,12 @@ const ProfileForm = ({ data }) => {
     },
     showData,
     handleSubmit,
-    onPositive: (data) => console.log(data),
+    onChangePassword: (data) => dispatch(changePassword({
+      passwords: {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword
+      }
+    })),
   };
 
   return <Render {...renderProps} />;

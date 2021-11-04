@@ -8,7 +8,7 @@ import { makeSlug } from "../../../commons/utils";
 
 const prefix = "CATEGORY_";
 // API
-const PATH_API = `${REDUX_API_URL}/categories`;
+const PATH_API = `${REDUX_API_URL}/classification/categories`;
 const createAction = action => `${prefix}${action}`;
 
 const defaultValues = {

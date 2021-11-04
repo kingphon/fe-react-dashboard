@@ -8,7 +8,7 @@ import { makeSlug } from "../../../commons/utils";
 
 const prefix = "WARD_";
 // API
-const PATH_API = `${REDUX_API_URL}/wards`;
+const PATH_API = `${REDUX_API_URL}/location/wards`;
 const createAction = action => `${prefix}${action}`;
 
 const defaultValues = {

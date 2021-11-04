@@ -8,7 +8,7 @@ import { makeSlug } from "../../../commons/utils";
 
 const prefix = "TYPE_GROUP_";
 // API
-const PATH_API = `${REDUX_API_URL}/type-groups`;
+const PATH_API = `${REDUX_API_URL}/classification/type-groups`;
 const createAction = action => `${prefix}${action}`;
 
 const defaultValues = {

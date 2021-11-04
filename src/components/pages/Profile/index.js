@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
-  useDispatch,
   useSelector,
   shallowEqual
 } from 'react-redux'
@@ -8,13 +7,12 @@ import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
 import Avatar from '@material-ui/core/Avatar';
 import PhotoCameraRoundedIcon from '@material-ui/icons/PhotoCameraRounded';
 import IconButton from "@material-ui/core/IconButton";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Header from '../../organisms/Header'
 import ProfileModal from '../../organisms/Profile/ProfileModal'
 import ProfileForm from '../../organisms/Profile/ProfileForm'
-import {
-  fetchAllProvince,
-} from '../../../redux/reducers/location/districtReducer';
 
 const Render = ({
   profile,
@@ -45,6 +43,7 @@ const Render = ({
     <ProfileForm data={profile} />
   </div>
   <ProfileModal open={file} onClose={() => setFile(null)} />
+  <ToastContainer />
 </div>)
 
 const Profile = () => {
@@ -55,13 +54,6 @@ const Profile = () => {
   }) => ({
     profile,
   }), shallowEqual)
-
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-    dispatch(fetchAllProvince())
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const [file, setFile] = useState(null)
 

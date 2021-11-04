@@ -8,7 +8,7 @@ import { makeSlug } from "../../../commons/utils";
 
 const prefix = "DISTRICT_";
 // API
-const PATH_API = `${REDUX_API_URL}/districts`;
+const PATH_API = `${REDUX_API_URL}/location/districts`;
 const createAction = action => `${prefix}${action}`;
 
 const defaultValues = {
@@ -75,7 +75,7 @@ export const closeModal = () => ({ type: CLOSE_MODAL });
 export const fetchAllProvince = () => async dispatch => {
 
   return axios
-    .get(`${REDUX_API_URL}/provinces-creation`, { timeout: 5000 })
+    .get(`${REDUX_API_URL}/location/provinces-creation`, { timeout: 5000 })
     .then(response => dispatch(prepareDataProvince(response.data)))
     .catch(error => toast.error(error))
 };

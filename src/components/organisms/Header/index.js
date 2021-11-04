@@ -60,7 +60,7 @@ const Header = ({
 
   return (
     <>
-      <div className="h-16 bg-white p-4 px-6 flex items-center justify-between top-0 sticky z-50">
+      <div className="h-16 bg-white p-4 px-6 flex items-center justify-between top-0 sticky z-50 border-b border-solid border-gray-300">
         <div className="flex items-center justify-start">
           <h3>{headerName}</h3>&nbsp;
                 {headerLogo}
