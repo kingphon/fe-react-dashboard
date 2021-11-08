@@ -2,14 +2,14 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 import { CONFIRM_DELETE } from "../../../commons/sweet-alert-modal";
-import { ACTIVE, ALL, HIDDEN } from '../../../constants/entities';
+import { ACTIVE, ALL, HIDDEN } from "../../../constants/entities";
 import { REDUX_API_URL } from "../../../constants/redux-actions";
 import { makeSlug } from "../../../commons/utils";
 
 const prefix = "DISTRICT_";
 // API
 const PATH_API = `${REDUX_API_URL}/location/districts`;
-const createAction = action => `${prefix}${action}`;
+const createAction = (action) => `${prefix}${action}`;
 
 const defaultValues = {
   id: null,
@@ -17,8 +17,8 @@ const defaultValues = {
   customizeSlug: false,
   slugName: "",
   status: true,
-  provinceId: ""
-}
+  provinceId: "",
+};
 
 export const initialState = {
   loading: true,
@@ -26,10 +26,9 @@ export const initialState = {
   formLoading: false,
   openModal: false,
   filters: {
-    status: ALL
+    status: ALL,
   },
-  districtList: [
-  ],
+  districtList: [],
   district: defaultValues,
   inputValue: "",
   provinceList: [],
@@ -48,57 +47,52 @@ const SET_SEARCH_KEYWORDS = createAction("SET_SEARCH_KEYWORDS");
 const CLOSE_MODAL = createAction("CLOSE_MODAL");
 const UPDATE_FILTERS = createAction("UPDATE_FILTERS");
 
-const listLoading = loading => ({ type: LIST_LOADING, loading });
-const createButtonLoading = loading => ({
+const listLoading = (loading) => ({ type: LIST_LOADING, loading });
+const createButtonLoading = (loading) => ({
   type: CREATE_BUTTON_LOADING,
-  loading
+  loading,
 });
-const formLoading = loading => ({ type: MODAL_FORM_LOADING, loading });
-const prepareData = data => ({
+const formLoading = (loading) => ({ type: MODAL_FORM_LOADING, loading });
+const prepareData = (data) => ({
   type: PREPARE_DATA,
-  districtList: data
+  districtList: data,
 });
-const prepareDataProvince = data => ({
+const prepareDataProvince = (data) => ({
   type: PREPARE_DATA_PROVINCE,
-  provinceList: data
+  provinceList: data,
 });
-const setOpenModal = openModal => ({ type: OPEN_MODAL, openModal });
+const setOpenModal = (openModal) => ({ type: OPEN_MODAL, openModal });
 
-export const setDistrict = district => ({ type: SET_DISTRICT, district });
+export const setDistrict = (district) => ({ type: SET_DISTRICT, district });
 
-export const setDefaultDistrict = district => ({ type: SET_DEFAULT_DISTRICT, district });
+export const setDefaultDistrict = () => ({ type: SET_DEFAULT_DISTRICT });
 
-export const setSearchKeywords = searchKeywords => ({ type: SET_SEARCH_KEYWORDS, searchKeywords });
+export const setSearchKeywords = (searchKeywords) => ({
+  type: SET_SEARCH_KEYWORDS,
+  searchKeywords,
+});
 
 export const closeModal = () => ({ type: CLOSE_MODAL });
 
-export const fetchAllProvince = () => async dispatch => {
-
+export const fetchAllProvince = () => async (dispatch) => {
   return axios
     .get(`${REDUX_API_URL}/location/provinces-creation`, { timeout: 5000 })
-    .then(response => dispatch(prepareDataProvince(response.data)))
-    .catch(error => toast.error(error))
+    .then((response) => dispatch(prepareDataProvince(response.data)))
+    .catch((error) => toast.error(error));
 };
 
-export const fetchAll = () => async dispatch => {
+export const fetchAll = () => async (dispatch) => {
   dispatch(listLoading(true));
   return axios
     .get(PATH_API, { timeout: 5000 })
-    .then(response => dispatch(prepareData(response.data)))
-    .catch(error => toast.error(error))
+    .then((response) => dispatch(prepareData(response.data)))
+    .catch((error) => toast.error(error))
     .finally(() => dispatch(listLoading(false)));
 };
 
-export const doSave = district => async dispatch => {
+export const doSave = (district) => async (dispatch) => {
   dispatch(formLoading(true));
-  const {
-    id,
-    name,
-    slugName,
-    provinceId,
-    customizeSlug,
-    status
-  } = district;
+  const { id, name, slugName, provinceId, customizeSlug, status } = district;
 
   const params = {
     name,
@@ -113,103 +107,103 @@ export const doSave = district => async dispatch => {
   }
 };
 
-export const getCreateAction = () => dispatch => {
+export const getCreateAction = () => (dispatch) => {
   dispatch(createButtonLoading(true));
   dispatch(setOpenModal(true));
   dispatch(fetchAllProvince());
   dispatch(createButtonLoading(false));
 };
 
-export const doFilters = filters => ({ type: UPDATE_FILTERS, filters });
+export const doFilters = (filters) => ({ type: UPDATE_FILTERS, filters });
 
-export const getUpdateAction = districtId => async dispatch => {
+export const getUpdateAction = (districtId) => async (dispatch) => {
   dispatch(listLoading(true));
   dispatch(fetchAllProvince());
   axios
     .get(`${PATH_API}/${districtId}`, { timeout: 5000 })
-    .then(response => {
+    .then((response) => {
       dispatch({
         type: SET_DISTRICT,
         district: response.data,
       });
       dispatch(setOpenModal(true));
     })
-    .catch(error => toast.error(error))
+    .catch((error) => toast.error(error))
     .finally(() => dispatch(listLoading(false)));
 };
 
-const doCreate = district => async dispatch => {
+const doCreate = (district) => async (dispatch) => {
   const params = JSON.stringify(district);
   axios
     .post(PATH_API, params, {
       timeout: 5000,
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     })
-    .then(response => {
+    .then((response) => {
       dispatch(prepareData(response.data));
-      toast.success("District is created successfully!!")
-      dispatch(setDefaultDistrict(initialState.district));
+      toast.success("District is created successfully!!");
+      dispatch(setDefaultDistrict());
     })
-    .catch(error => {
-      toast.error(error)
+    .catch((error) => {
+      toast.error(error);
     })
     .finally(() => dispatch(formLoading(false)));
 };
 
-const doUpdate = district => async dispatch => {
+const doUpdate = (district) => async (dispatch) => {
   const params = JSON.stringify(district);
   return axios
     .put(`${PATH_API}/${district.id}`, params, {
       timeout: 5000,
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     })
-    .then(response => {
+    .then((response) => {
       dispatch(prepareData(response.data));
       toast.success("District is update successfully!!");
-      dispatch(closeModal())
+      dispatch(closeModal());
     })
-    .catch(error => toast.error(error))
+    .catch((error) => toast.error(error))
     .finally(() => dispatch(formLoading(false)));
 };
 
-export const doDelete = districtId => async dispatch => {
+export const doDelete = (districtId) => async (dispatch) => {
   dispatch(listLoading(true));
   const params = JSON.stringify(districtId);
   CONFIRM_DELETE("Bạn sẽ không thể khôi phục lại dữ liệu").then((result) => {
     if (result.isConfirmed) {
-      return !Array.isArray(districtId) ?
-        axios
-          .delete(`${PATH_API}/${districtId}`)
-          .then(response => {
-            dispatch(prepareData(response.data));
-            toast.success(`Delete District #${districtId} success!!`);
-          })
-          .catch(error => toast.error(error))
-          .finally(() => dispatch(listLoading(false))) :
-        axios
-          .post(`${PATH_API}/delete-items`, params, {
-            timeout: 5000,
-            headers: {
-              "Content-Type": "application/json"
-            }
-          })
-          .then(response => {
-            dispatch(prepareData(response.data));
-            toast.success(`Delete District #${districtId} success!!`)
-          })
-          .catch(error => {
-            toast.error(error)
-          })
-          .finally(() => dispatch(listLoading(false)));
+      return !Array.isArray(districtId)
+        ? axios
+            .delete(`${PATH_API}/${districtId}`)
+            .then((response) => {
+              dispatch(prepareData(response.data));
+              toast.success(`Delete District #${districtId} success!!`);
+            })
+            .catch((error) => toast.error(error))
+            .finally(() => dispatch(listLoading(false)))
+        : axios
+            .post(`${PATH_API}/delete-items`, params, {
+              timeout: 5000,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+            .then((response) => {
+              dispatch(prepareData(response.data));
+              toast.success(`Delete District #${districtId} success!!`);
+            })
+            .catch((error) => {
+              toast.error(error);
+            })
+            .finally(() => dispatch(listLoading(false)));
     }
-  })
+  });
 };
 
-export const setFilters = filters => ({ type: UPDATE_FILTERS, filters });
+export const setFilters = (filters) => ({ type: UPDATE_FILTERS, filters });
 
 export default function (state = initialState, action) {
   try {
@@ -229,7 +223,7 @@ export default function (state = initialState, action) {
         return {
           ...state,
           districtList: action.districtList,
-          loading: false
+          loading: false,
         };
       case PREPARE_DATA_PROVINCE:
         return {
@@ -239,7 +233,7 @@ export default function (state = initialState, action) {
       case UPDATE_FILTERS:
         return {
           ...state,
-          filters: action.filters
+          filters: action.filters,
         };
       case SET_DISTRICT:
         return {
@@ -248,13 +242,22 @@ export default function (state = initialState, action) {
             ...action.district,
             status: action.district.status === ACTIVE ? true : false,
             customizeSlug: false,
-            provinceId: state.provinceList.find(option => option.value === action.district.provinceId)
+            provinceId: state.provinceList.find(
+              (option) => option.value === action.district.provinceId
+            ),
           },
         };
       case SET_DEFAULT_DISTRICT:
         return {
           ...state,
-          district: action.district,
+          district: {
+            id: null,
+            name: "",
+            customizeSlug: false,
+            slugName: "",
+            status: true,
+            provinceId: "",
+          },
         };
       case SET_SEARCH_KEYWORDS:
         return {

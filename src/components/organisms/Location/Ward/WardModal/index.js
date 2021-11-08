@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useForm, } from "react-hook-form";
-import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { schema } from "./yupSchema";
 
 import RHFCheckBox from "../../../../atoms/RHFCheckBox";
@@ -14,8 +14,8 @@ import ModalModule from "../../../../molecules/ModalModule";
 import {
   closeModal,
   doSave,
-  fetchAllDistrict
-} from '../../../../../redux/reducers/location/wardReducer';
+  fetchAllDistrict,
+} from "../../../../../redux/reducers/location/wardReducer";
 
 const Render = ({
   openModal,
@@ -23,62 +23,48 @@ const Render = ({
   methods,
   handleSubmit,
   watchCustomizeSlug,
+  watchChangeProvince,
   watchProvinceId,
-  ward: {
-    id
-  },
+  ward: { id },
   provinceList,
   districtList,
   onPositive,
-  onClose
+  onClose,
 }) => (
   <ModalModule
     title={id ? "Update Ward" : "Create Ward"}
     open={openModal}
     loading={formLoading}
     maxWidth="md"
-    handleSubmit={handleSubmit(data => onPositive(data))}
+    handleSubmit={handleSubmit((data) => onPositive(data))}
     onClose={onClose}
     methods={methods}
   >
     <FormGroup row>
-      {id &&
-        <RHFInput
-          label="Ward Id: "
-          name="id"
-          width="25%"
-          disabled={true}
-        />
-      }
-      <RHFInput
-        label="Ward Name: *"
-        name="name"
-        width={id ? "70%" : "100%"}
-      />
+      {id && (
+        <RHFInput label="Ward Id: " name="id" width="25%" disabled={true} />
+      )}
+      <RHFInput label="Ward Name: *" name="name" width={id ? "70%" : "100%"} />
     </FormGroup>
     <FormGroup row>
-      <RHFCheckBox
-        name="customizeSlug"
-        label="Customize Slug"
-      />
+      <RHFCheckBox name="customizeSlug" label="Customize Slug" />
       <RHFToggleActive />
     </FormGroup>
-    {watchCustomizeSlug &&
-      <RHFInput
-        label="Ward Slug Name: "
-        name="slugName"
-      />
-    }
+    {watchCustomizeSlug && (
+      <RHFInput label="Ward Slug Name: " name="slugName" />
+    )}
+    {id && <RHFCheckBox name="changeProvince" label="Change Province" />}
     <FormGroup row>
       <RHFComboBox
         className="w-1/2 my-2 -mx-1"
+        disabled={id && !watchChangeProvince}
         label="Province Name: *"
         name="provinceId"
         selectList={provinceList}
       />
       <RHFComboBox
         className="w-1/2 my-2 -mx-1"
-        disabled={!watchProvinceId}
+        disabled={id ? !watchChangeProvince : !watchProvinceId}
         label="District Name"
         name="districtId"
         selectList={districtList}
@@ -90,13 +76,7 @@ const Render = ({
 const WardModal = () => {
   const selector = useSelector(
     ({
-      wardReducer: {
-        openModal,
-        formLoading,
-        ward,
-        provinceList,
-        districtList,
-      }
+      wardReducer: { openModal, formLoading, ward, provinceList, districtList },
     }) => ({
       openModal,
       formLoading,
@@ -110,30 +90,33 @@ const WardModal = () => {
   const methods = useForm({
     defaultValues: selector.ward,
     resolver: yupResolver(schema),
-  })
+  });
 
-  const { handleSubmit, watch, setValue, clearErrors } = methods
+  const { handleSubmit, watch, setValue, clearErrors } = methods;
   const watchCustomizeSlug = watch("customizeSlug");
+  const watchChangeProvince = watch("changeProvince");
   const watchProvinceId = watch("provinceId");
 
   useEffect(() => {
     for (const key in selector.ward) {
       if (Object.hasOwnProperty.call(selector.ward, key)) {
         const element = selector.ward[key];
-        setValue(key, element)
+        setValue(key, element);
       }
     }
-    clearErrors()
+    clearErrors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selector.ward])
+  }, [selector.ward]);
 
   useEffect(() => {
     if (watchProvinceId) {
-      dispatch(fetchAllDistrict(watchProvinceId.value))
+      dispatch(fetchAllDistrict(watchProvinceId.value));
     }
-    setValue("districtId", "")
+    if (watchChangeProvince) {
+      setValue("districtId", "");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchProvinceId])
+  }, [watchProvinceId]);
 
   const dispatch = useDispatch();
 
@@ -142,9 +125,10 @@ const WardModal = () => {
     methods,
     handleSubmit,
     watchCustomizeSlug,
+    watchChangeProvince,
     watchProvinceId,
     onPositive: (data) => dispatch(doSave(data)),
-    onClose: () => dispatch(closeModal())
+    onClose: () => dispatch(closeModal()),
   };
 
   return <Render {...renderProps} />;

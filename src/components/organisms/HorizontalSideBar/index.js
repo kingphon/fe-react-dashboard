@@ -40,29 +40,29 @@ const HorizontalSideBar = () => {
           }]
         }
       },
-      {
-        name: "Classification",
-        beforeIcon: CategoryRoundedIcon,
-        afterIcon: ExpandMoreRoundedIcon,
-        subMenu: {
-          open: false,
-          item: [{
-            name: "Category",
-            path: "/category",
-            icon: CategoryRoundedIcon
-          },
-          {
-            name: "Type Group",
-            path: "/type-group",
-            icon: CategoryRoundedIcon
-          },
-          {
-            name: "Type",
-            path: "/type",
-            icon: CategoryRoundedIcon
-          }]
-        }
-      },
+      // {
+      //   name: "Classification",
+      //   beforeIcon: CategoryRoundedIcon,
+      //   afterIcon: ExpandMoreRoundedIcon,
+      //   subMenu: {
+      //     open: false,
+      //     item: [{
+      //       name: "Category",
+      //       path: "/category",
+      //       icon: CategoryRoundedIcon
+      //     },
+      //     {
+      //       name: "Type Group",
+      //       path: "/type-group",
+      //       icon: CategoryRoundedIcon
+      //     },
+      //     {
+      //       name: "Type",
+      //       path: "/type",
+      //       icon: CategoryRoundedIcon
+      //     }]
+      //   }
+      // },
       {
         name: "Profile",
         icon: AccountCircleRoundedIcon,

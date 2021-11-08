@@ -90,15 +90,16 @@ export const getProfile = () => async dispatch => {
 
 export const changeAvatar = (avatar) => async dispatch => {
   const params = JSON.stringify(avatar);
+  console.log(params)
   return axios
-    .post(`${REDUX_API_URL}/profile/avatar`, params, {
+    .post(`${REDUX_API_URL}/user/profile/avatar`, params, {
       timeout: 5000,
       headers: {
         "Content-Type": "application/json"
       }
     })
     .then(response => {
-      dispatch(setProfile(response.data[0]))
+      dispatch(setProfile(response.data))
       toast.success('Changed Avatar')
     })
     .catch(error => toast.error(error.response.data.message))
@@ -141,7 +142,7 @@ export const doLogin = (params, callback) => dispatch => {
 }
 
 export const doLogout = callback => dispatch => {
-  return axios.get(PATH_API_LOGOUT, {
+  return axios.post(PATH_API_LOGOUT, {
     headers: {
       'Content-Type': 'application/json'
     }
@@ -190,15 +191,15 @@ export default function (state = initialState, action) {
         return {
           ...state,
           profile: {
-            ...action.data.profile,
-            createDate: moment(new Date(action.data.profile.createDate)).format('YYYY-MM-DD hh:mm:ss'),
-            updateDate: moment(new Date(action.data.profile.updateDate)).format('YYYY-MM-DD hh:mm:ss'),
-            provinceName: action.data.province.provinceName,
-            districtName: action.data.district.districtName,
-            wardName: action.data.ward.wardName,
-            provinceId: state.provinceList.find(option => option.value === action.data.province.provinceId),
-            districtId: action.data.district.districtId,
-            wardId: action.data.ward.wardId,
+            ...action.data,
+            createDate: moment(new Date(action.data.createDate)).format('YYYY-MM-DD hh:mm:ss'),
+            updateDate: moment(new Date(action.data.updateDate)).format('YYYY-MM-DD hh:mm:ss'),
+            provinceName: action.data.provinceName,
+            districtName: action.data.districtName,
+            wardName: action.data.wardName,
+            provinceId: state.provinceList.find(option => option.value === action.data.provinceId),
+            districtId: action.data.districtId,
+            wardId: action.data.wardId,
           }
         }
       }
